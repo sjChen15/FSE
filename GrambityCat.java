@@ -73,8 +73,9 @@ public class GrambityCat extends JFrame implements ActionListener{
         //if the game is running, run game things
         if(source==myTimer){
             game.move();	//move the player
+
             game.repaint();
-            game.checkFalling();
+            game.checkPlayer();
         }
 
     }
@@ -89,24 +90,46 @@ public class GrambityCat extends JFrame implements ActionListener{
 //////////////////////////////////////
 class GamePanel extends JPanel implements KeyListener{
     private Cat player; //player's coords
+
+    //platforms
     private Platform platform; //put in txt file soon
+    private Platform platform2; //put in txt file soon
+
+    //keys
     private boolean[] keys;	//the state of the keyboard
+    private boolean[] oldKeys; //the state of the keyboard before the current keyboard
+
+    //images
     private Image back;	//pictuer of the background of the main page
-    private Image cat;
+    private Image normalC;
+    private Image upsideDC;
     private Image plat;
+
+    //ints
+    private int opx,opy; //coordinates of where the player started
+    private int gravity = 3; //gravity value
     private GrambityCat mainFrame; //the game's frame
+
+
 
 
     //constructor
     public GamePanel(GrambityCat m){
         keys = new boolean [KeyEvent.KEY_LAST+1]; //make the keyboard list as large as needed
+        oldKeys = new boolean [KeyEvent.KEY_LAST+1];
         back = new ImageIcon(getClass().getResource("background.jpg")).getImage();	//the background of the game
-        cat = new ImageIcon(getClass().getResource("cat001.png")).getImage();	//the player's character image
+        normalC = new ImageIcon(getClass().getResource("cat003.png")).getImage();	//the player's character image
+        upsideDC = new ImageIcon(getClass().getResource("cat003D.png")).getImage();
         plat  = new ImageIcon(getClass().getResource("Platform.png")).getImage();
         mainFrame = m;	//the main frame
 
-        player = new Cat(200,0,cat);
-        platform = new Platform(190,250,100,20, plat);
+        opx = 200;
+        opy = 300;
+        player = new Cat(opx,opy,normalC,upsideDC);
+
+
+        platform = new Platform(190,550,100,20, plat);
+        platform2 = new Platform(170,100,100,20, plat);
         plat = new ImageIcon(getClass().getResource("Platform.png")).getImage();
 
         setSize(800,800);
@@ -125,33 +148,51 @@ class GamePanel extends JPanel implements KeyListener{
 
     public void move(){
         if(keys[KeyEvent.VK_RIGHT]){
-            player.addX(5);
+            player.addX(4);
 
         }
         if(keys[KeyEvent.VK_LEFT]){
-            player.addX(-5);
+            player.addX(-4);
         }
-        /*if(keys[KeyEvent.VK_UP]){
+        if(keys[KeyEvent.VK_UP]){
+            if(!oldKeys[KeyEvent.VK_UP]&&platform.ontop(player)){
+                player.jump();
+                player.setOntop(platform, false);
+            }
 
-        }*/
+        }
+        if(keys[KeyEvent.VK_SPACE]){
+            if(platform.ontop(player)){
+                player.setOntop(platform,false);
+                player.setNormalGravity(false);
+                gravity = gravity*-1;
+
+            }
+        }
 
     }
 
 
+    public void checkPlayer(){
 
-    public void checkFalling(){
 
         if(platform.ontop(player)){
             player.setFalling(false);
+            player.setOntop(platform,true);
         }
         else{
             player.setFalling(true);
         }
-
         if(player.isFalling()){
-            System.out.println("k");
-            player.addY(1);
+            player.checkJumpV(); //do jumping things
+            player.addY(gravity); //gravity
         }
+
+        if(player.isDead()){
+            player.setCoords(opx,opy);
+            player.setDead(false);
+        }
+
     }
     /*
     //moveBad moves the enemies
@@ -185,10 +226,12 @@ class GamePanel extends JPanel implements KeyListener{
 
     //if a key is pressed, its position in keys is true
     public void keyPressed(KeyEvent e) {
+        oldKeys [e.getKeyCode()] = keys[e.getKeyCode()];
         keys[e.getKeyCode()] = true;
     }
     //if a key is not pressed, its position in keys is false
     public void keyReleased(KeyEvent e) {
+        oldKeys [e.getKeyCode()] = keys[e.getKeyCode()];
         keys[e.getKeyCode()] = false;
     }
 
@@ -197,6 +240,7 @@ class GamePanel extends JPanel implements KeyListener{
         g.drawImage(back,0,0,this);  //draw background
         player.draw(g,this);
         platform.draw(g,this);
+        platform2.draw(g,this);
         // g.drawImage(plat,190,300,this);
     }
 }
