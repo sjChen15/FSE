@@ -1,4 +1,4 @@
-package com.company;
+
 //GrambityCat.java
 //Jenny Chen
 
@@ -138,7 +138,7 @@ class GamePanel extends JPanel implements KeyListener{
         platforms = new ArrayList<Platform>();
         platform = new Platform(190,250,100,20, plat);
         platforms.add(platform);
-        platform2 = new Platform(170,100,100,20, plat);
+        platform2 = new Platform(170,500,500,20, plat);
         platforms.add(platform2);
 
         setSize(800,800);

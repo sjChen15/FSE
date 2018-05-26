@@ -1,8 +1,6 @@
-package com.company;
 import java.awt.*;
 import java.awt.image.ImageObserver;
 import java.util.ArrayList;
-
 
 public class Cat {
     //ints
@@ -142,14 +140,12 @@ public class Cat {
         return dead;
     }
 
-
     public void updateCollideRects(){
         topRect = new Rectangle(px+10,py,20,1);
         bottomRect = new Rectangle(px+10,py+60,20,1);
         leftRect = new Rectangle(px,py,1,61);
         rightRect = new Rectangle(px+39,py,1,61);
     }
-
 
     public void jump(){
         if(!falling){
@@ -167,7 +163,12 @@ public class Cat {
 
     public void draw(Graphics g, GamePanel gamePanel){
         if(normalGravity){
-            g.drawImage(normal,px,py,gamePanel);
+            if (direction) {
+                g.drawImage(normCatsR.get(catnum), px, py, gamePanel);
+            }
+            else{
+                g.drawImage(normCatsL.get(catnum), px, py, gamePanel);
+            }
         }
         else{
             g.drawImage(upsideDown,px,py,gamePanel);
@@ -181,33 +182,21 @@ public class Cat {
     }
 
     public void setOnPlat(Platform platform,boolean on) {
-        if(on) {
-            if(normalGravity){
-                py = platform.getY()-61;
-            }
-            else{
-                py = platform.getY()+platform.getH();
+        if (on) {
+            if (normalGravity) {
+                py = platform.getY() - 61;
+            } else {
+                py = platform.getY() + platform.getH();
             }
             falling = false;
-        }
-        else {
+        } else {
             if (normalGravity) {
-                py-=3;
+                py -= 3;
+
+            } else {
+                py += 3;
 
             }
-            else {
-                py+=3;
-
-            }
-            falling = true;
-        }
-            if(platform.getCollideRect(this).equals(topRect)){
-                py += platform.getY()+platform.getH()+4; //extra 3 so it stops colliding
-            }
-            else if(platform.getCollideRect(this).equals(bottomRect)){
-                py += platform.getY()-4;
-            }
-
             falling = true;
         }
     }

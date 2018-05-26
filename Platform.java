@@ -1,4 +1,4 @@
-package com.company;
+
 
 import java.awt.*;
 
@@ -63,11 +63,12 @@ public class Platform {
   
     public boolean onPlat(Cat cat){
         if(cat.getNormalGravity() && topRect.contains(cat.getCollideRect("bottom"))){
-
             return true;
         }
         if(!cat.getNormalGravity() && bottomRect.contains(cat.getCollideRect("top"))){
-
+            return true;
+        }
+        return false;
     }
       
     public void draw(Graphics g, GamePanel gamePanel) {
