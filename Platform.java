@@ -1,12 +1,13 @@
-import com.sun.org.apache.regexp.internal.RE;
+package com.company;
 
 import java.awt.*;
 
 public class Platform {
     private int px,py; //position of platform (top left corner)
     private int h,w; //width and height of platform
+    
+  //platform tings
     private Image platPic;
-
     private Rectangle[] collideRects= new Rectangle[4];
     private Rectangle platRect; //the actual platform
     private Rectangle topRect;
@@ -19,8 +20,9 @@ public class Platform {
         this.py = py;
         this.h = h;
         this.w = w;
-        this.platPic = platPic;
 
+        this.platPic = platPic;
+      
         platRect= new Rectangle(px,py,w,h);
         topRect = new Rectangle(px,py-3,w,3);
         collideRects[0] = topRect;
@@ -35,11 +37,9 @@ public class Platform {
     public int getX(){
         return px;
     }
-
     public int getY(){
         return py;
     }
-
     public int getH(){
         return h;
     }
@@ -57,22 +57,19 @@ public class Platform {
             else if(rect.contains(cat.getCollideRect("bottom"))){
                 return cat.getCollideRect("bottom");
             }
-
         }
         return null;
     }
+  
     public boolean onPlat(Cat cat){
         if(cat.getNormalGravity() && topRect.contains(cat.getCollideRect("bottom"))){
 
             return true;
         }
         if(!cat.getNormalGravity() && bottomRect.contains(cat.getCollideRect("top"))){
-            return true;
-        }
-        return false;
+
     }
-
-
+      
     public void draw(Graphics g, GamePanel gamePanel) {
         g.drawImage(platPic,px,py,gamePanel);
         g.setColor(Color.ORANGE);
@@ -80,6 +77,5 @@ public class Platform {
         g.drawRect(px,py+h,w,2);
         g.drawRect(px-2,py,2,h);
         g.drawRect(px+w,py,2,h);
-
     }
 }

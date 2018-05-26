@@ -1,20 +1,32 @@
+package com.company;
 import java.awt.*;
 import java.awt.image.ImageObserver;
+import java.util.ArrayList;
+
 
 public class Cat {
     //ints
     private int px,py;
     private int jumpV; //the jumping velocity
 
+
     //images
     //NOTE ALL CAT PICTURES ARE 40x61 PIXELS
     private Image normal;
     private Image upsideDown;
+  
+    private int catnum = 0;
+    private int count = 0;
+  
+    private ArrayList<Image> normCatsR = new ArrayList<Image>();
+    private ArrayList<Image> normCatsL = new ArrayList<Image>();
+
 
     //booleans
     private boolean falling = true; //if true, not on
     private boolean dead = false; //true if the player has died
     private boolean normalGravity = true;
+    private boolean direction = true;
 
     //rects
     private Rectangle topRect;
@@ -22,7 +34,11 @@ public class Cat {
     private Rectangle leftRect;
     private Rectangle rightRect;
 
-    public Cat(int px, int py, Image normal, Image upsideDown) {
+    
+
+    
+
+    public Cat(int px, int py, Image normal, Image upsideDown, ArrayList<Image> nCatsR, ArrayList<Image>nCatsL) {      
         this.px = px;
         this.py = py;
         this.normal = normal;
@@ -32,6 +48,10 @@ public class Cat {
         bottomRect = new Rectangle(px+10,py+60,20,1);
         leftRect = new Rectangle(px,py,1,61);
         rightRect = new Rectangle(px+39,py,1,61);
+
+        this.normCatsR = nCatsR;
+        this.normCatsL = nCatsL;
+
     }
 
     public void setFalling(boolean f){
@@ -54,9 +74,23 @@ public class Cat {
     }
 
     public void addX(int x){
+        if( x < 0 ){
+            direction = false;
+        }
+        else{
+            direction = true;
+        }
         if(px+x>0 && px+x<600){
             px+=x;
 
+        }
+        count += 1;
+        if(count == 10){
+            catnum = 0;
+        }
+        else if (count == 20){
+            catnum = 1;
+            count = 0;
         }
     }
 
@@ -108,12 +142,15 @@ public class Cat {
         return dead;
     }
 
+
     public void updateCollideRects(){
         topRect = new Rectangle(px+10,py,20,1);
         bottomRect = new Rectangle(px+10,py+60,20,1);
         leftRect = new Rectangle(px,py,1,61);
         rightRect = new Rectangle(px+39,py,1,61);
     }
+
+
     public void jump(){
         if(!falling){
             falling = true;
@@ -141,9 +178,6 @@ public class Cat {
         g.drawRect(px,py,1,61);
         g.drawRect(px+39,py,1,61);
 
-        /*g.setColor(Color.CYAN);
-        g.fillOval(px,py,5,5);*/
-
     }
 
     public void setOnPlat(Platform platform,boolean on) {
@@ -167,18 +201,6 @@ public class Cat {
             }
             falling = true;
         }
-        /*if(on){
-           if(platform.getCollideRect(this).equals(topRect)){
-               py = platform.getY()+platform.getH()+1;
-           }
-           else if(platform.getCollideRect(this).equals(bottomRect)){
-               py = platform.getY()-1;
-           }
-
-           falling  = false;
-        }
-        else{
-
             if(platform.getCollideRect(this).equals(topRect)){
                 py += platform.getY()+platform.getH()+4; //extra 3 so it stops colliding
             }
@@ -187,6 +209,6 @@ public class Cat {
             }
 
             falling = true;
-        }*/
+        }
     }
 }
