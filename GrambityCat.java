@@ -24,7 +24,7 @@ public class GrambityCat extends JFrame implements ActionListener{
     //the game constructor
     public GrambityCat(){
         super("Grambity Cat");
-        setSize(600,600);
+        setSize(800,600);
         game = new GamePanel(this);
         add(game);
 
@@ -72,9 +72,11 @@ public class GrambityCat extends JFrame implements ActionListener{
         }
         //if the game is running, run game things
         if(source==myTimer){
+            game.checkPlayer();
             game.move();	//move the player
+
             game.repaint();
-            game.checkFalling();
+
         }
 
     }
@@ -89,25 +91,52 @@ public class GrambityCat extends JFrame implements ActionListener{
 //////////////////////////////////////
 class GamePanel extends JPanel implements KeyListener{
     private Cat player; //player's coords
+
+    //platforms
+    private ArrayList<Platform> platforms;
     private Platform platform; //put in txt file soon
+    private Platform platform2; //put in txt file soon
+
+    //keys
     private boolean[] keys;	//the state of the keyboard
+    private boolean[] oldKeys; //the state of the keyboard before the current keyboard
+
+    //images
     private Image back;	//pictuer of the background of the main page
-    private Image cat;
+    private Image normalC;
+    private Image upsideDC;
     private Image plat;
+
+    //ints
+    private int opx,opy; //coordinates of where the player started
+    private int gravity = 3; //gravity value
     private GrambityCat mainFrame; //the game's frame
+
+
 
 
     //constructor
     public GamePanel(GrambityCat m){
         keys = new boolean [KeyEvent.KEY_LAST+1]; //make the keyboard list as large as needed
+        oldKeys = new boolean [KeyEvent.KEY_LAST+1];
         back = new ImageIcon(getClass().getResource("background.jpg")).getImage();	//the background of the game
-        cat = new ImageIcon(getClass().getResource("cat001.png")).getImage();	//the player's character image
+        normalC = new ImageIcon(getClass().getResource("cat002.png")).getImage();	//the player's character image
+        upsideDC = new ImageIcon(getClass().getResource("cat002D.png")).getImage();
         plat  = new ImageIcon(getClass().getResource("Platform.png")).getImage();
         mainFrame = m;	//the main frame
 
-        player = new Cat(200,0,cat);
-        platform = new Platform(190,250,100,20, plat);
+        opx = 200;
+        opy = 100;
+        player = new Cat(opx,opy,normalC,upsideDC);
+
+        //make this with like loops or something one day
         plat = new ImageIcon(getClass().getResource("Platform.png")).getImage();
+        platforms = new ArrayList<Platform>();
+        platform = new Platform(190,250,100,20, plat);
+        platforms.add(platform);
+        platform2 = new Platform(170,100,100,20, plat);
+        platforms.add(platform2);
+
 
         setSize(800,800);
         addKeyListener(this);
@@ -121,37 +150,69 @@ class GamePanel extends JPanel implements KeyListener{
         requestFocus();
         mainFrame.start();
     }
-    //move moves the player, makes sure the player doesn't move off screen
 
+    //move moves the player, makes sure the player doesn't move off screen
     public void move(){
         if(keys[KeyEvent.VK_RIGHT]){
-            player.addX(5);
-
+            player.addX(4);
         }
         if(keys[KeyEvent.VK_LEFT]){
-            player.addX(-5);
+            player.addX(-4);
         }
-        /*if(keys[KeyEvent.VK_UP]){
+        if(keys[KeyEvent.VK_UP]){
+            if(!oldKeys[KeyEvent.VK_UP]&&platform.onPlat(player)){
+                player.jump();
+                for(Platform platy : platforms){
+                    player.setOnPlat(platy, false);
+                }
+            }
+        }
+        if(keys[KeyEvent.VK_SPACE]){
+            for(Platform platy:platforms){
+                if(platy.onPlat(player)){
+                    player.setOnPlat(platy,false);
+                    if(gravity*-1<0){
+                        player.setNormalGravity(false);
+                    }
+                    else{
+                        player.setNormalGravity(true);
+                    }
+                    gravity = gravity*-1;
 
-        }*/
+                }
+            }
+
+        }
 
     }
 
-
-
-    public void checkFalling(){
-
-        if(platform.ontop(player)){
-            player.setFalling(false);
+    public void checkPlayer(){
+        boolean onAPlat = false;
+        for(Platform platy: platforms){
+            if(platy.onPlat(player)){ //check if player is on a platform
+                player.setFalling(false);
+                onAPlat = true;
+                player.setOnPlat(platy,true);
+            }
         }
-        else{
+        if(!onAPlat){
             player.setFalling(true);
         }
 
+
         if(player.isFalling()){
-            System.out.println("k");
-            player.addY(1);
+            player.checkJumpV(); //do jumping things
+            player.addY(gravity); //gravity
+
         }
+
+        if(player.isDead()){
+            player.setCoords(opx,opy);
+            player.setDead(false);
+            gravity = 3;
+        }
+        player.updateCollideRects();
+
     }
     /*
     //moveBad moves the enemies
@@ -185,10 +246,12 @@ class GamePanel extends JPanel implements KeyListener{
 
     //if a key is pressed, its position in keys is true
     public void keyPressed(KeyEvent e) {
+        oldKeys [e.getKeyCode()] = keys[e.getKeyCode()];
         keys[e.getKeyCode()] = true;
     }
     //if a key is not pressed, its position in keys is false
     public void keyReleased(KeyEvent e) {
+        oldKeys [e.getKeyCode()] = keys[e.getKeyCode()];
         keys[e.getKeyCode()] = false;
     }
 
@@ -196,7 +259,9 @@ class GamePanel extends JPanel implements KeyListener{
     public void paintComponent(Graphics g){
         g.drawImage(back,0,0,this);  //draw background
         player.draw(g,this);
-        platform.draw(g,this);
+        for(Platform platy:platforms){
+            platy.draw(g,this);
+        }
         // g.drawImage(plat,190,300,this);
     }
 }
