@@ -1,4 +1,3 @@
-
 //GrambityCat.java
 //Jenny Chen
 
@@ -6,6 +5,18 @@ import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+
+/*
+things to do
+- side collision
+- make razer classes
+- make laser classes
+
+small things to do
+- fix walking while flying thing
+- fix upsidedown animation
+
+ */
 
 public class GrambityCat extends JFrame implements ActionListener{
     private javax.swing.Timer myTimer;	//the Timer
@@ -66,7 +77,7 @@ public class GrambityCat extends JFrame implements ActionListener{
         if(source==myTimer){
             game.checkPlayer();
             game.move();	//move the player
-
+            game.updateSaws();
             game.repaint();
         }
     }
@@ -79,31 +90,25 @@ public class GrambityCat extends JFrame implements ActionListener{
 
 //////////////////////////////////////
 class GamePanel extends JPanel implements KeyListener{
-    private Cat player; //player's coords
-
+    private Cat player; //player
+    private GrambityCat mainFrame;
     //platforms
-
     private ArrayList<Platform> platforms;
-
-    private Platform platform; //put in txt file soon
-    private Platform platform2; //put in txt file soon
-
     //keys
-    private boolean[] keys;	//the state of the keyboard
-    private boolean[] oldKeys; //the state of the keyboard before the current keyboard
+    private boolean[] keys,oldKeys;	//the state of the keyboard
 
     //images
-    private Image back;	//pictuer of the background of the main page
-    private Image normalC1;
-    private Image normalC2;
-    private Image upsideDC;
-    private Image plat;
+    private Image back,normalC1,normalC2,upsideDC,plat;	//pictuer of the background of the main page
 
+    //saws
+    private Saw s1;
     //ints
     private int opx,opy; //coordinates of where the player started
-    private int gravity = 3; //gravity value
-    private GrambityCat mainFrame; //the game's frame
+    private int gravity = 5; //gravity value
+    private int jCounter; //player can only hold jump for so long, jCounter keeps track of that
 
+    //booleans
+    private boolean canJump;
     private ArrayList<Image> nCatsR = new ArrayList<Image>();
     private ArrayList<Image> nCatsL = new ArrayList<Image>();
 
@@ -129,21 +134,27 @@ class GamePanel extends JPanel implements KeyListener{
       //player tings
         opx = 200;
         opy = 300;
-        player = new Cat(opx,opy,normalC1,upsideDC, nCatsR, nCatsL);
+        player = new Cat(opx,opy,upsideDC, nCatsR, nCatsL);
 
       //platform tings
-        platform = new Platform(190,550,100,20, plat);
-        platform2 = new Platform(170,100,100,20, plat);
         plat = new ImageIcon(getClass().getResource("Platform.png")).getImage();
         platforms = new ArrayList<Platform>();
-        platform = new Platform(190,250,100,20, plat);
+        Platform platform = new Platform(5,450,100,20, plat);
         platforms.add(platform);
-        platform2 = new Platform(170,500,500,20, plat);
+        Platform platform2 = new Platform(170,500,100,20, plat);
         platforms.add(platform2);
+        Platform platform3 = new Platform(300,450,100,20, plat);
+        platforms.add(platform3);
+        Platform platform4 = new Platform(200,150,100,20, plat);
+        platforms.add(platform4);
+
+        //saw tings
+        s1 = new Saw(300,450,300,400,"right");
+
 
         setSize(800,800);
         addKeyListener(this);
-        mainFrame = m;	//the main frame
+        mainFrame = m;    //the main frame
     }
 
     //starts the game
@@ -163,12 +174,16 @@ class GamePanel extends JPanel implements KeyListener{
             player.addX(-4);
         }
         if(keys[KeyEvent.VK_UP]){
-
-            if(!oldKeys[KeyEvent.VK_UP]&&platform.onPlat(player)){
-                player.jump();
-                for(Platform platy : platforms){
-                    player.setOnPlat(platy, false);
+            for(Platform platy:platforms){
+                if(!oldKeys[KeyEvent.VK_UP]&&platy.onPlat(player)) {
+                    jCounter = 10;
+                    canJump = true;
                 }
+            }
+            if(jCounter>0 &&canJump){
+                player.jump();
+                player.setOnPlat(platforms.get(0), false);
+                jCounter--;
             }
         }
         if(keys[KeyEvent.VK_SPACE]){
@@ -185,12 +200,16 @@ class GamePanel extends JPanel implements KeyListener{
                 }
             }   
         }
+        if(!keys[KeyEvent.VK_UP]){
+            canJump = false;
+        }
     }
 
     public void checkPlayer(){
         boolean onAPlat = false;
         for(Platform platy: platforms){
             if(platy.onPlat(player)){ //check if player is on a platform
+                player.setJumping(false);
                 player.setFalling(false);
                 onAPlat = true;
                 player.setOnPlat(platy,true);
@@ -199,16 +218,48 @@ class GamePanel extends JPanel implements KeyListener{
         if(!onAPlat){
             player.setFalling(true);
         }
+
+        boolean canRight = true;
+        for(Platform platy:platforms){
+            if(platy.leftCollidePlat(player)){
+                player.setCanGoRight(false);
+                canRight = false;
+                player.setSideRect(platy,"left");
+            }
+        }
+        if(canRight){
+            player.setCanGoRight(true);
+        }
+
+        boolean canLeft = true;
+        for(Platform platy:platforms){
+            if(platy.rightCollidePlat(player)){
+                player.setCanGoLeft(false);
+                canLeft = false;
+                player.setSideRect(platy,"right");
+            }
+        }
+        if(canLeft){
+            player.setCanGoLeft(true);
+        }
+
         if(player.isFalling()){
-            player.checkJumpV(); //do jumping things
             player.addY(gravity); //gravity
+        }
+        if(player.isJumping()){
+            player.checkJumpV(); //do jumping things
         }
         if(player.isDead()){
             player.setCoords(opx,opy);
             player.setDead(false);
             gravity = 3;
+            player.setNormalGravity(true);
         }
         player.updateCollideRects();
+    }
+
+    public void updateSaws(){
+        s1.move();
     }
 
     //methods from implementing KeyListener
@@ -232,5 +283,7 @@ class GamePanel extends JPanel implements KeyListener{
         for(Platform platy:platforms){
             platy.draw(g,this);
         }
+
+        s1.draw(g,this);
     }
 }

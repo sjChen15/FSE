@@ -10,11 +10,12 @@ public class Cat {
 
     //images
     //NOTE ALL CAT PICTURES ARE 40x61 PIXELS
-    private Image normal;
     private Image upsideDown;
-  
+
+    //ints
     private int catnum = 0;
     private int count = 0;
+    private int jumpCounter;
   
     private ArrayList<Image> normCatsR = new ArrayList<Image>();
     private ArrayList<Image> normCatsL = new ArrayList<Image>();
@@ -24,28 +25,24 @@ public class Cat {
     private boolean falling = true; //if true, not on
     private boolean dead = false; //true if the player has died
     private boolean normalGravity = true;
-    private boolean direction = true;
+    private boolean direction = true; //true if going right
+    private boolean jumping = false;
+    private boolean canGoRight = true;
+    private boolean canGoLeft = true;
 
     //rects
-    private Rectangle topRect;
-    private Rectangle bottomRect;
-    private Rectangle leftRect;
-    private Rectangle rightRect;
+    private Rect catRect,topRect,bottomRect,leftRect,rightRect;
 
-    
-
-    
-
-    public Cat(int px, int py, Image normal, Image upsideDown, ArrayList<Image> nCatsR, ArrayList<Image>nCatsL) {      
+    public Cat(int px, int py, Image upsideDown, ArrayList<Image> nCatsR, ArrayList<Image>nCatsL) {
         this.px = px;
         this.py = py;
-        this.normal = normal;
         this.upsideDown = upsideDown;
 
-        topRect = new Rectangle(px+10,py,20,1);
-        bottomRect = new Rectangle(px+10,py+60,20,1);
-        leftRect = new Rectangle(px,py,1,61);
-        rightRect = new Rectangle(px+39,py,1,61);
+        catRect = new Rect(px,py,40,61);
+        topRect = new Rect(px,py,40,1);
+        bottomRect = new Rect(px,py+60,40,1);
+        leftRect = new Rect(px,py,1,61);
+        rightRect = new Rect(px+39,py,1,61);
 
         this.normCatsR = nCatsR;
         this.normCatsL = nCatsL;
@@ -71,16 +68,27 @@ public class Cat {
         normalGravity = g;
     }
 
+    public void setCanGoRight(boolean canGoRight) {
+        this.canGoRight = canGoRight;
+    }
+
+    public void setCanGoLeft(boolean canGoLeft) {
+        this.canGoLeft = canGoLeft;
+    }
+
+    public void setJumping(boolean j){ jumping = j;}
     public void addX(int x){
         if( x < 0 ){
             direction = false;
+            if(canGoLeft && px+x>0){
+                px+=x;
+            }
         }
         else{
             direction = true;
-        }
-        if(px+x>0 && px+x<600){
-            px+=x;
-
+            if(canGoRight && px+x<800){
+                px+=x;
+            }
         }
         count += 1;
         if(count == 10){
@@ -91,6 +99,7 @@ public class Cat {
             count = 0;
         }
     }
+
 
     public void addY(int y){
         if(falling){
@@ -114,7 +123,7 @@ public class Cat {
         return normalGravity;
     }
 
-    public Rectangle getCollideRect(String pos){
+    public Rect getCollideRect(String pos){
         if(pos.equals("top")){
             return topRect;
         }
@@ -127,6 +136,9 @@ public class Cat {
         else if(pos.equals("right")){
             return rightRect;
         }
+        else if(pos.equals("cat")){
+            return catRect;
+        }
         System.out.println("check getCollideRect");
         return null;
     }
@@ -135,28 +147,44 @@ public class Cat {
         return falling;
     }
 
+    public boolean isJumping(){ return jumping;}
     //returns true if player is dead
     public boolean isDead(){
         return dead;
     }
 
     public void updateCollideRects(){
-        topRect = new Rectangle(px+10,py,20,1);
-        bottomRect = new Rectangle(px+10,py+60,20,1);
-        leftRect = new Rectangle(px,py,1,61);
-        rightRect = new Rectangle(px+39,py,1,61);
+        catRect = new Rect(px,py,40,61);
+        topRect = new Rect(px,py,40,1);
+        bottomRect = new Rect(px,py+60,40,1);
+        leftRect = new Rect(px,py,1,61);
+        rightRect = new Rect(px+39,py,1,61);
     }
 
     public void jump(){
-        if(!falling){
-            falling = true;
-            jumpV = -15;
+        jumpCounter = 5;
+        jumping = true;
+        falling = true;
+        if(normalGravity){
+            jumpV = -6;
         }
+        else{
+            jumpV = 6;
+        }
+
     }
 
     public void checkJumpV(){
-        if(jumpV<0){
-            jumpV += 1;
+        if(jumpCounter<1){
+            if(normalGravity && jumpV<0){
+                jumpV++;
+            }
+            if(!normalGravity && jumpV>0){
+                jumpV--;
+            }
+        }
+        if(jumpCounter>0){
+            jumpCounter--;
         }
         addY(jumpV);
     }
@@ -172,13 +200,21 @@ public class Cat {
         }
         else{
             g.drawImage(upsideDown,px,py,gamePanel);
+            /*if (direction) {
+                g.drawImage(normCatsR.get(catnum), px, py, gamePanel);
+            }
+            else{
+                g.drawImage(normCatsL.get(catnum), px, py, gamePanel);
+            }*/
         }
         g.setColor(Color.GREEN);
-        g.drawRect(px+10,py,20,1);
-        g.drawRect(px+10,py+60,20,1);
-        g.drawRect(px,py,1,61);
-        g.drawRect(px+39,py,1,61);
+        g.drawRect((int)topRect.getX(),(int)topRect.getY(),(int)topRect.getWidth(),(int)topRect.getHeight());
+        g.drawRect((int)bottomRect.getX(),(int)bottomRect.getY(),(int)bottomRect.getWidth(),(int)bottomRect.getHeight());
+        g.drawRect((int)leftRect.getX(),(int)leftRect.getY(),(int)leftRect.getWidth(),(int)leftRect.getHeight());
+        g.drawRect((int)rightRect.getX(),(int)rightRect.getY(),(int)rightRect.getWidth(),(int)rightRect.getHeight());
 
+        g.setColor(Color.magenta);
+        g.drawRect((int)catRect.getX(),(int)catRect.getY(),(int)catRect.getWidth(),(int)catRect.getHeight());
     }
 
     public void setOnPlat(Platform platform,boolean on) {
@@ -186,18 +222,31 @@ public class Cat {
             if (normalGravity) {
                 py = platform.getY() - 61;
             } else {
-                py = platform.getY() + platform.getH();
+                py = platform.getY() + platform.getHeight();
             }
             falling = false;
-        } else {
+        }
+        else {
             if (normalGravity) {
-                py -= 3;
-
-            } else {
-                py += 3;
-
+                py -= 4;
+            }
+            else {
+                py += 4;
             }
             falling = true;
+        }
+        updateCollideRects();
+    }
+
+    public void setSideRect(Platform platform, String pos){
+        if(pos.equals("left")){
+            px = platform.getX()-41;
+        }
+        else if(pos.equals("right")){
+            px = platform.getX()+platform.getWidth()+1;
+        }
+        else{
+            System.out.println("check setSideRect");
         }
     }
 }

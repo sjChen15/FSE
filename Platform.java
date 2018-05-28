@@ -8,12 +8,12 @@ public class Platform {
     
   //platform tings
     private Image platPic;
-    private Rectangle[] collideRects= new Rectangle[4];
-    private Rectangle platRect; //the actual platform
-    private Rectangle topRect;
-    private Rectangle bottomRect;
-    private Rectangle leftRect;
-    private Rectangle rightRect;
+    private Rect[] collideRects= new Rect[4];
+    private Rect platRect; //the actual platform
+    private Rect topRect;
+    private Rect bottomRect;
+    private Rect leftRect;
+    private Rect rightRect;
 
     public Platform(int px, int py, int w, int h,Image platPic) {
         this.px = px;
@@ -23,14 +23,14 @@ public class Platform {
 
         this.platPic = platPic;
       
-        platRect= new Rectangle(px,py,w,h);
-        topRect = new Rectangle(px,py-3,w,3);
+        platRect= new Rect(px,py,w,h);
+        topRect = new Rect(px,py-3,w,3);
         collideRects[0] = topRect;
-        bottomRect = new Rectangle(px,py+h,w,3);
+        bottomRect = new Rect(px,py+h,w,3);
         collideRects[1] = bottomRect;
-        leftRect = new Rectangle(px-3,py,3,h);
+        leftRect = new Rect(px-3,py,3,h);
         collideRects[2] = leftRect;
-        rightRect = new Rectangle(px+w,py,3,h);
+        rightRect = new Rect(px+w,py,3,h);
         collideRects[3] = rightRect;
     }
 
@@ -40,21 +40,21 @@ public class Platform {
     public int getY(){
         return py;
     }
-    public int getH(){
+    public int getHeight(){
         return h;
     }
-    public int getW(){
+    public int getWidth(){
         return w;
     }
 
     //only works with top and bottom rects for now
     //returns cat's rectangle that has collided
-    public Rectangle getCollideRect(Cat cat){
-        for(Rectangle rect: collideRects){
-            if(rect.contains(cat.getCollideRect("bottom"))){
+    public Rect getCollideRect(Cat cat){
+        for(Rect rect: collideRects){
+            if(rect.overlaps(cat.getCollideRect("bottom"))){
                 return cat.getCollideRect("bottom");
             }
-            else if(rect.contains(cat.getCollideRect("bottom"))){
+            else if(rect.overlaps(cat.getCollideRect("bottom"))){
                 return cat.getCollideRect("bottom");
             }
         }
@@ -62,10 +62,24 @@ public class Platform {
     }
   
     public boolean onPlat(Cat cat){
-        if(cat.getNormalGravity() && topRect.contains(cat.getCollideRect("bottom"))){
+        if(cat.getNormalGravity() && topRect.overlaps(cat.getCollideRect("bottom"))){
             return true;
         }
-        if(!cat.getNormalGravity() && bottomRect.contains(cat.getCollideRect("top"))){
+        if(!cat.getNormalGravity() && bottomRect.overlaps(cat.getCollideRect("top"))){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean leftCollidePlat(Cat cat){
+        if(cat.getCollideRect("cat").overlaps(leftRect)){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean rightCollidePlat(Cat cat){
+        if(cat.getCollideRect("cat").overlaps(rightRect)){
             return true;
         }
         return false;
