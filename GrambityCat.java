@@ -1,3 +1,4 @@
+package com.company;
 //GrambityCat.java
 //Jenny Chen
 
@@ -6,41 +7,35 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
-/*
-things to do
-- side collision
-- make razer classes
-- make laser classes
-
-small things to do
-- fix walking while flying thing
-- fix upsidedown animation
-
- */
-
 public class GrambityCat extends JFrame implements ActionListener{
     private javax.swing.Timer myTimer;	//the Timer
     private JPanel cards;	//the cards
     private CardLayout cLayout = new CardLayout();	//the layout
     private JButton playBtn = new JButton("Play");	//the button that starts the game
+    private JButton inBtn  = new JButton("Instructions");
     private GamePanel game;	//the game panel
+    private GamePanel inst;
+
 
     //the game constructor
     public GrambityCat(){
         super("Grambity Cat");
         setSize(800,600);
         game = new GamePanel(this);
+        inst = new GamePanel(this);
         add(game);
+        add(inst);
 
         playBtn.addActionListener(this);
+        inBtn.addActionListener(this);
         myTimer = new javax.swing.Timer(10, this);
 
         //mainpage card
-        ImageIcon mainBack = new ImageIcon(getClass().getResource("mainback.jpg"));
+        ImageIcon mainBack = new ImageIcon(getClass().getResource("BACK.png"));
         JLabel backLabel = new JLabel(mainBack);
         JLayeredPane mPage = new JLayeredPane();
         mPage.setLayout(null);
-        backLabel.setSize(400,400);
+        backLabel.setSize(800,600);
         backLabel.setLocation(0,0);
         mPage.add(backLabel,1);
 
@@ -49,10 +44,15 @@ public class GrambityCat extends JFrame implements ActionListener{
         playBtn.setLocation(350,400);
         mPage.add(playBtn,2);
 
+        inBtn.setSize(100,30);
+        inBtn.setLocation(350,430);
+        mPage.add(inBtn,2);
+
         //the magic of adding cards
         cards = new JPanel(cLayout);
         cards.add(mPage, "menu");
         cards.add(game, "game");
+        cards.add(inst, "instructions");
         add(cards);
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -68,6 +68,10 @@ public class GrambityCat extends JFrame implements ActionListener{
     public void actionPerformed(ActionEvent evt) {
         Object source = evt.getSource();
         //start the game if play button is pressed
+        if (source == inBtn){
+            cLayout.show(cards,"instructions");
+            inst.requestFocus();
+        }
         if(source==playBtn){
             cLayout.show(cards,"game");
             myTimer.start();
@@ -77,7 +81,7 @@ public class GrambityCat extends JFrame implements ActionListener{
         if(source==myTimer){
             game.checkPlayer();
             game.move();	//move the player
-            game.updateSaws();
+
             game.repaint();
         }
     }
@@ -90,25 +94,31 @@ public class GrambityCat extends JFrame implements ActionListener{
 
 //////////////////////////////////////
 class GamePanel extends JPanel implements KeyListener{
-    private Cat player; //player
-    private GrambityCat mainFrame;
+    private Cat player; //player's coords
+
     //platforms
+
     private ArrayList<Platform> platforms;
+
+    private Platform platform; //put in txt file soon
+    private Platform platform2; //put in txt file soon
+
     //keys
-    private boolean[] keys,oldKeys;	//the state of the keyboard
+    private boolean[] keys;	//the state of the keyboard
+    private boolean[] oldKeys; //the state of the keyboard before the current keyboard
 
     //images
-    private Image back,normalC1,normalC2,upsideDC,plat;	//pictuer of the background of the main page
+    private Image back;	//pictuer of the background of the main page
+    private Image normalC1;
+    private Image normalC2;
+    private Image upsideDC;
+    private Image plat;
 
-    //saws
-    private Saw s1;
     //ints
     private int opx,opy; //coordinates of where the player started
-    private int gravity = 5; //gravity value
-    private int jCounter; //player can only hold jump for so long, jCounter keeps track of that
+    private int gravity = 3; //gravity value
+    private GrambityCat mainFrame; //the game's frame
 
-    //booleans
-    private boolean canJump;
     private ArrayList<Image> nCatsR = new ArrayList<Image>();
     private ArrayList<Image> nCatsL = new ArrayList<Image>();
 
@@ -117,7 +127,7 @@ class GamePanel extends JPanel implements KeyListener{
         keys = new boolean [KeyEvent.KEY_LAST+1]; //make the keyboard list as large as needed
         oldKeys = new boolean [KeyEvent.KEY_LAST+1];
         //images
-        back = new ImageIcon(getClass().getResource("background.jpg")).getImage();	//the background of the game
+        back = new ImageIcon(getClass().getResource("Gradient.png")).getImage();	//the background of the game
         upsideDC = new ImageIcon(getClass().getResource("cat002D.png")).getImage();
         plat  = new ImageIcon(getClass().getResource("Platform.png")).getImage();
       
@@ -134,27 +144,21 @@ class GamePanel extends JPanel implements KeyListener{
       //player tings
         opx = 200;
         opy = 300;
-        player = new Cat(opx,opy,upsideDC, nCatsR, nCatsL);
+        player = new Cat(opx,opy,normalC1,upsideDC, nCatsR, nCatsL);
 
       //platform tings
+        platform = new Platform(190,550,100,20, plat);
+        platform2 = new Platform(170,100,100,20, plat);
         plat = new ImageIcon(getClass().getResource("Platform.png")).getImage();
         platforms = new ArrayList<Platform>();
-        Platform platform = new Platform(5,450,100,20, plat);
+        platform = new Platform(190,250,100,20, plat);
         platforms.add(platform);
-        Platform platform2 = new Platform(170,500,100,20, plat);
+        platform2 = new Platform(170,500,10000,20, plat);
         platforms.add(platform2);
-        Platform platform3 = new Platform(300,450,100,20, plat);
-        platforms.add(platform3);
-        Platform platform4 = new Platform(200,150,100,20, plat);
-        platforms.add(platform4);
-
-        //saw tings
-        s1 = new Saw(300,450,300,400,"right");
-
 
         setSize(800,800);
         addKeyListener(this);
-        mainFrame = m;    //the main frame
+        mainFrame = m;	//the main frame
     }
 
     //starts the game
@@ -174,16 +178,12 @@ class GamePanel extends JPanel implements KeyListener{
             player.addX(-4);
         }
         if(keys[KeyEvent.VK_UP]){
-            for(Platform platy:platforms){
-                if(!oldKeys[KeyEvent.VK_UP]&&platy.onPlat(player)) {
-                    jCounter = 10;
-                    canJump = true;
-                }
-            }
-            if(jCounter>0 &&canJump){
+
+            if(!oldKeys[KeyEvent.VK_UP]&&platform.onPlat(player)){
                 player.jump();
-                player.setOnPlat(platforms.get(0), false);
-                jCounter--;
+                for(Platform platy : platforms){
+                    player.setOnPlat(platy, false);
+                }
             }
         }
         if(keys[KeyEvent.VK_SPACE]){
@@ -200,16 +200,12 @@ class GamePanel extends JPanel implements KeyListener{
                 }
             }   
         }
-        if(!keys[KeyEvent.VK_UP]){
-            canJump = false;
-        }
     }
 
     public void checkPlayer(){
         boolean onAPlat = false;
         for(Platform platy: platforms){
             if(platy.onPlat(player)){ //check if player is on a platform
-                player.setJumping(false);
                 player.setFalling(false);
                 onAPlat = true;
                 player.setOnPlat(platy,true);
@@ -218,48 +214,16 @@ class GamePanel extends JPanel implements KeyListener{
         if(!onAPlat){
             player.setFalling(true);
         }
-
-        boolean canRight = true;
-        for(Platform platy:platforms){
-            if(platy.leftCollidePlat(player)){
-                player.setCanGoRight(false);
-                canRight = false;
-                player.setSideRect(platy,"left");
-            }
-        }
-        if(canRight){
-            player.setCanGoRight(true);
-        }
-
-        boolean canLeft = true;
-        for(Platform platy:platforms){
-            if(platy.rightCollidePlat(player)){
-                player.setCanGoLeft(false);
-                canLeft = false;
-                player.setSideRect(platy,"right");
-            }
-        }
-        if(canLeft){
-            player.setCanGoLeft(true);
-        }
-
         if(player.isFalling()){
-            player.addY(gravity); //gravity
-        }
-        if(player.isJumping()){
             player.checkJumpV(); //do jumping things
+            player.addY(gravity); //gravity
         }
         if(player.isDead()){
             player.setCoords(opx,opy);
             player.setDead(false);
             gravity = 3;
-            player.setNormalGravity(true);
         }
         player.updateCollideRects();
-    }
-
-    public void updateSaws(){
-        s1.move();
     }
 
     //methods from implementing KeyListener
@@ -283,7 +247,5 @@ class GamePanel extends JPanel implements KeyListener{
         for(Platform platy:platforms){
             platy.draw(g,this);
         }
-
-        s1.draw(g,this);
     }
 }
