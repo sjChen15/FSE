@@ -1,5 +1,6 @@
 //GrambityCat.java
 //Jenny Chen
+//package com.company;
 
 import java.util.*;
 import java.awt.*;
@@ -23,6 +24,7 @@ public class GrambityCat extends JFrame implements ActionListener{
     private JPanel cards;	//the cards
     private CardLayout cLayout = new CardLayout();	//the layout
     private JButton playBtn = new JButton("Play");	//the button that starts the game
+    private JButton inBtn  = new JButton("Instructions");
     private GamePanel game;	//the game panel
 
     //the game constructor
@@ -33,26 +35,42 @@ public class GrambityCat extends JFrame implements ActionListener{
         add(game);
 
         playBtn.addActionListener(this);
+        inBtn.addActionListener(this);
         myTimer = new javax.swing.Timer(10, this);
 
         //mainpage card
-        ImageIcon mainBack = new ImageIcon(getClass().getResource("mainback.jpg"));
+        ImageIcon mainBack = new ImageIcon(getClass().getResource("mainback.png"));
         JLabel backLabel = new JLabel(mainBack);
         JLayeredPane mPage = new JLayeredPane();
         mPage.setLayout(null);
-        backLabel.setSize(400,400);
+        backLabel.setSize(800,600);
         backLabel.setLocation(0,0);
         mPage.add(backLabel,1);
+
+        //instruction card
+        ImageIcon instructBack = new ImageIcon(getClass().getResource("instructions.png")); //page picture
+        JLabel instructLabel = new JLabel(instructBack);
+        JLayeredPane iPage= new JLayeredPane();
+        mPage.setLayout(null);
+        instructLabel.setSize(800,600);
+        instructLabel.setLocation(0,0);
+        iPage.add(instructLabel,1);
 
         //play button
         playBtn.setSize(100,30);
         playBtn.setLocation(350,400);
         mPage.add(playBtn,2);
 
+        //instruction button
+        inBtn.setSize(150,30);
+        inBtn.setLocation(350,500);
+        mPage.add(inBtn,2);
+
         //the magic of adding cards
         cards = new JPanel(cLayout);
         cards.add(mPage, "menu");
         cards.add(game, "game");
+        cards.add(iPage,"instructions");
         add(cards);
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -71,6 +89,10 @@ public class GrambityCat extends JFrame implements ActionListener{
         if(source==playBtn){
             cLayout.show(cards,"game");
             myTimer.start();
+            game.requestFocus();
+        }
+        if(source==inBtn){
+            cLayout.show(cards,"instructions");
             game.requestFocus();
         }
         //if the game is running, run game things
@@ -98,7 +120,7 @@ class GamePanel extends JPanel implements KeyListener{
     private boolean[] keys,oldKeys;	//the state of the keyboard
 
     //images
-    private Image back,normalC1,normalC2,upsideDC,plat;	//pictuer of the background of the main page
+    private Image back;	//pictuer of the background of the main page
 
     //saws
     private Saw s1;
@@ -109,21 +131,20 @@ class GamePanel extends JPanel implements KeyListener{
 
     //booleans
     private boolean canJump;
-    private ArrayList<Image> nCatsR = new ArrayList<Image>();
-    private ArrayList<Image> nCatsL = new ArrayList<Image>();
 
     //constructor
     public GamePanel(GrambityCat m){
         keys = new boolean [KeyEvent.KEY_LAST+1]; //make the keyboard list as large as needed
         oldKeys = new boolean [KeyEvent.KEY_LAST+1];
         //images
-        back = new ImageIcon(getClass().getResource("background.jpg")).getImage();	//the background of the game
-        upsideDC = new ImageIcon(getClass().getResource("cat002D.png")).getImage();
-        plat  = new ImageIcon(getClass().getResource("Platform.png")).getImage();
+        back = new ImageIcon(getClass().getResource("background.png")).getImage();	//the background of the game
+        Image upsideDC = new ImageIcon(getClass().getResource("cat002D.png")).getImage();
       
         //cat images
-        normalC1 = new ImageIcon(getClass().getResource("cat002.png")).getImage();
-        normalC2 = new ImageIcon(getClass().getResource("cat003.png")).getImage();	//the player's character image
+        ArrayList<Image> nCatsR = new ArrayList<>();
+        ArrayList<Image> nCatsL = new ArrayList<>();
+        Image normalC1 = new ImageIcon(getClass().getResource("cat002.png")).getImage();
+        Image normalC2 = new ImageIcon(getClass().getResource("cat003.png")).getImage();	//the player's character image
         nCatsR.add(normalC1);
         nCatsR.add(normalC2);
         normalC1 = new ImageIcon(getClass().getResource("cat012.png")).getImage();
@@ -137,8 +158,9 @@ class GamePanel extends JPanel implements KeyListener{
         player = new Cat(opx,opy,upsideDC, nCatsR, nCatsL);
 
       //platform tings
-        plat = new ImageIcon(getClass().getResource("Platform.png")).getImage();
-        platforms = new ArrayList<Platform>();
+        Image plat = new ImageIcon(getClass().getResource("Platform.png")).getImage();
+        Image plat1 = new ImageIcon(getClass().getResource("Platform1.png")).getImage();
+        platforms = new ArrayList<>();
         Platform platform = new Platform(5,450,100,20, plat);
         platforms.add(platform);
         Platform platform2 = new Platform(170,500,100,20, plat);
@@ -147,10 +169,16 @@ class GamePanel extends JPanel implements KeyListener{
         platforms.add(platform3);
         Platform platform4 = new Platform(200,150,100,20, plat);
         platforms.add(platform4);
+        Platform platform5 = new Platform(400,400,300,40,plat1);
+        platforms.add(platform5);
 
         //saw tings
-        s1 = new Saw(300,450,300,400,"right");
-
+        Image[] sawPics = new Image[2];
+        Image saw1 = new ImageIcon(getClass().getResource("saw1.png")).getImage();
+        sawPics[0] = saw1;
+        Image saw2 = new ImageIcon(getClass().getResource("saw2.png")).getImage();
+        sawPics[1] = saw2;
+        s1 = new Saw(400,360,480,640,sawPics,"right");
 
         setSize(800,800);
         addKeyListener(this);
@@ -255,7 +283,8 @@ class GamePanel extends JPanel implements KeyListener{
             gravity = 3;
             player.setNormalGravity(true);
         }
-        player.updateCollideRects();
+
+        s1.checkCat(player);
     }
 
     public void updateSaws(){
@@ -280,10 +309,11 @@ class GamePanel extends JPanel implements KeyListener{
     public void paintComponent(Graphics g){
         g.drawImage(back,0,0,this);  //draw background
         player.draw(g,this);
+
         for(Platform platy:platforms){
             platy.draw(g,this);
         }
-
         s1.draw(g,this);
+
     }
 }

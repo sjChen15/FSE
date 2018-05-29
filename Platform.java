@@ -9,11 +9,7 @@ public class Platform {
   //platform tings
     private Image platPic;
     private Rect[] collideRects= new Rect[4];
-    private Rect platRect; //the actual platform
-    private Rect topRect;
-    private Rect bottomRect;
-    private Rect leftRect;
-    private Rect rightRect;
+    private Rect platRect,topRect,bottomRect,leftRect,rightRect;
 
     public Platform(int px, int py, int w, int h,Image platPic) {
         this.px = px;
