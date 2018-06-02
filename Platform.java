@@ -9,11 +9,7 @@ public class Platform {
   //platform tings
     private Image platPic;
     private Rect[] collideRects= new Rect[4];
-    private Rect platRect; //the actual platform
-    private Rect topRect;
-    private Rect bottomRect;
-    private Rect leftRect;
-    private Rect rightRect;
+    private Rect topRect,bottomRect,leftRect,rightRect;
 
     public Platform(int px, int py, int w, int h,Image platPic) {
         this.px = px;
@@ -22,8 +18,7 @@ public class Platform {
         this.w = w;
 
         this.platPic = platPic;
-      
-        platRect= new Rect(px,py,w,h);
+
         topRect = new Rect(px,py-3,w,3);
         collideRects[0] = topRect;
         bottomRect = new Rect(px,py+h,w,3);
@@ -45,20 +40,6 @@ public class Platform {
     }
     public int getWidth(){
         return w;
-    }
-
-    //only works with top and bottom rects for now
-    //returns cat's rectangle that has collided
-    public Rect getCollideRect(Cat cat){
-        for(Rect rect: collideRects){
-            if(rect.overlaps(cat.getCollideRect("bottom"))){
-                return cat.getCollideRect("bottom");
-            }
-            else if(rect.overlaps(cat.getCollideRect("bottom"))){
-                return cat.getCollideRect("bottom");
-            }
-        }
-        return null;
     }
   
     public boolean onPlat(Cat cat){
