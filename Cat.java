@@ -7,25 +7,22 @@ public class Cat {
     private int px,py;
     private int jumpV; //the jumping velocity
 
-
-    //images
-    //NOTE ALL CAT PICTURES ARE 40x61 PIXELS
-    private Image upsideDown;
-
     //ints
     private int catnum = 0;
     private int count = 0;
     private int jumpCounter;
-  
-    private ArrayList<Image> normCatsR = new ArrayList<Image>();
-    private ArrayList<Image> normCatsL = new ArrayList<Image>();
 
+    //images
+    //NOTE ALL CAT PICTURES ARE 40x61 PIXELS
+    private Image[] normCatsR,normCatsL, upsideCatsR, upsideCatsL;
+    private Point[] catPoints= new Point[8]; //holds 8 points around the cat, used to check if cat has ran into a saw
 
     //booleans
     private boolean falling = true; //if true, not on
     private boolean dead = false; //true if the player has died
     private boolean normalGravity = true;
     private boolean direction = true; //true if going right
+    private boolean standing = true;
     private boolean jumping = false;
     private boolean canGoRight = true;
     private boolean canGoLeft = true;
@@ -33,20 +30,18 @@ public class Cat {
     //rects
     private Rect catRect,topRect,bottomRect,leftRect,rightRect;
 
-    public Cat(int px, int py, Image upsideDown, ArrayList<Image> nCatsR, ArrayList<Image>nCatsL) {
+    public Cat(int px, int py,Image[] nCatsR, Image[] nCatsL, Image[] uCatsR, Image[] uCatsL) {
         this.px = px;
         this.py = py;
-        this.upsideDown = upsideDown;
 
-        catRect = new Rect(px,py,40,61);
-        topRect = new Rect(px,py,40,1);
-        bottomRect = new Rect(px,py+60,40,1);
-        leftRect = new Rect(px,py,1,61);
-        rightRect = new Rect(px+39,py,1,61);
+        normCatsR = nCatsR;
+        normCatsL = nCatsL;
 
-        this.normCatsR = nCatsR;
-        this.normCatsL = nCatsL;
+        upsideCatsR = uCatsR;
+        upsideCatsL = uCatsL;
 
+        updateCatPoints();
+        updateCollideRects();
     }
 
     public void setFalling(boolean f){
@@ -77,6 +72,8 @@ public class Cat {
     }
 
     public void setJumping(boolean j){ jumping = j;}
+
+    public void setStanding(boolean s){ standing = s;}
     public void addX(int x){
         if( x < 0 ){
             direction = false;
@@ -98,6 +95,8 @@ public class Cat {
             catnum = 1;
             count = 0;
         }
+        updateCatPoints();
+        updateCollideRects();
     }
 
 
@@ -108,7 +107,8 @@ public class Cat {
                 dead = true;
             }
         }
-
+        updateCatPoints();
+        updateCollideRects();
     }
 
     public int getX(){
@@ -143,6 +143,10 @@ public class Cat {
         return null;
     }
 
+    public Point[] getCatPoints(){
+        return catPoints;
+    }
+
     public boolean isFalling(){
         return falling;
     }
@@ -155,10 +159,27 @@ public class Cat {
 
     public void updateCollideRects(){
         catRect = new Rect(px,py,40,61);
-        topRect = new Rect(px,py,40,1);
-        bottomRect = new Rect(px,py+60,40,1);
+        if(direction){
+            topRect = new Rect(px+4,py,24,1);
+            bottomRect = new Rect(px+4,py+60,24,1);
+        }
+        else{
+            topRect = new Rect(px+12,py,24,1);
+            bottomRect = new Rect(px+12,py+60,24,1);
+        }
         leftRect = new Rect(px,py,1,61);
         rightRect = new Rect(px+39,py,1,61);
+    }
+
+    public void updateCatPoints(){
+        catPoints[0] = new Point(px,py);
+        catPoints[1] = new Point(px+20,py);
+        catPoints[2] = new Point(px+40,py);
+        catPoints[3] = new Point(px+40,py+30);
+        catPoints[4] = new Point(px+40,py+61);
+        catPoints[5] = new Point(px+20,py+61);
+        catPoints[6] = new Point(px,py+61);
+        catPoints[7] = new Point(px,py+30);
     }
 
     public void jump(){
@@ -171,7 +192,6 @@ public class Cat {
         else{
             jumpV = 6;
         }
-
     }
 
     public void checkJumpV(){
@@ -187,34 +207,8 @@ public class Cat {
             jumpCounter--;
         }
         addY(jumpV);
-    }
-
-    public void draw(Graphics g, GamePanel gamePanel){
-        if(normalGravity){
-            if (direction) {
-                g.drawImage(normCatsR.get(catnum), px, py, gamePanel);
-            }
-            else{
-                g.drawImage(normCatsL.get(catnum), px, py, gamePanel);
-            }
-        }
-        else{
-            g.drawImage(upsideDown,px,py,gamePanel);
-            /*if (direction) {
-                g.drawImage(normCatsR.get(catnum), px, py, gamePanel);
-            }
-            else{
-                g.drawImage(normCatsL.get(catnum), px, py, gamePanel);
-            }*/
-        }
-        g.setColor(Color.GREEN);
-        g.drawRect((int)topRect.getX(),(int)topRect.getY(),(int)topRect.getWidth(),(int)topRect.getHeight());
-        g.drawRect((int)bottomRect.getX(),(int)bottomRect.getY(),(int)bottomRect.getWidth(),(int)bottomRect.getHeight());
-        g.drawRect((int)leftRect.getX(),(int)leftRect.getY(),(int)leftRect.getWidth(),(int)leftRect.getHeight());
-        g.drawRect((int)rightRect.getX(),(int)rightRect.getY(),(int)rightRect.getWidth(),(int)rightRect.getHeight());
-
-        g.setColor(Color.magenta);
-        g.drawRect((int)catRect.getX(),(int)catRect.getY(),(int)catRect.getWidth(),(int)catRect.getHeight());
+        updateCollideRects();
+        updateCatPoints();
     }
 
     public void setOnPlat(Platform platform,boolean on) {
@@ -236,6 +230,7 @@ public class Cat {
             falling = true;
         }
         updateCollideRects();
+        updateCatPoints();
     }
 
     public void setSideRect(Platform platform, String pos){
@@ -247,6 +242,79 @@ public class Cat {
         }
         else{
             System.out.println("check setSideRect");
+        }
+        updateCollideRects();
+        updateCatPoints();
+    }
+    /*
+    public void speedUp(){
+
+    }*/
+
+
+    public void draw(Graphics g, GamePanel gamePanel){
+        if(normalGravity){
+            if (direction) {
+                if(falling){
+                    g.drawImage(normCatsR[0], px, py, gamePanel);
+                }
+                else if(standing){
+                    g.drawImage(normCatsR[2],px,py,gamePanel);
+                }
+                else {
+                    g.drawImage(normCatsR[catnum], px, py, gamePanel);
+                }
+            }
+            else{
+                if(falling){
+                    g.drawImage(normCatsL[0], px, py, gamePanel);
+                }
+                else if(standing){
+                    g.drawImage(normCatsL[2],px,py,gamePanel);
+                }
+                else{
+                    g.drawImage(normCatsL[catnum], px, py, gamePanel);
+                }
+
+
+            }
+        }
+        else{
+            if (direction) {
+                if(falling){
+                    g.drawImage(upsideCatsR[0],px,py,gamePanel);
+                }
+                else if(standing){
+                    g.drawImage(upsideCatsR[2],px,py,gamePanel);
+                }
+                else{
+                    g.drawImage(upsideCatsR[catnum], px, py, gamePanel);
+                }
+
+
+            }
+            else{
+                if(falling){
+                    g.drawImage(upsideCatsL[0],px,py,gamePanel);
+                }
+                else if(standing){
+                    g.drawImage(upsideCatsL[2],px,py,gamePanel);
+                }
+                else{
+                    g.drawImage(upsideCatsL[catnum], px, py, gamePanel);
+                }
+
+            }
+        }
+        g.setColor(Color.GREEN);
+        g.drawRect((int)topRect.getX(),(int)topRect.getY(),(int)topRect.getWidth(),(int)topRect.getHeight());
+        g.drawRect((int)bottomRect.getX(),(int)bottomRect.getY(),(int)bottomRect.getWidth(),(int)bottomRect.getHeight());
+        g.drawRect((int)leftRect.getX(),(int)leftRect.getY(),(int)leftRect.getWidth(),(int)leftRect.getHeight());
+        g.drawRect((int)rightRect.getX(),(int)rightRect.getY(),(int)rightRect.getWidth(),(int)rightRect.getHeight());
+
+        g.setColor(Color.magenta);
+        for(Point p:catPoints){
+            g.drawRect((int)p.getX(),(int)p.getY(),1,1);
         }
     }
 }
