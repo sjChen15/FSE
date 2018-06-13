@@ -17,7 +17,6 @@ public class Cat {
     private int speedCounter = 0;   //counts how long the cat has been in speedy mode
 
     //images
-    //NOTE ALL CAT PICTURES ARE 40x61 PIXELS
     private Image[] normCatsR,normCatsL, upsideCatsR, upsideCatsL; //lists of images going in different directions and gravities
     private Point[] catPoints= new Point[8]; //holds 8 points around the cat, used to check if cat has ran into a saw
 
@@ -95,14 +94,24 @@ public class Cat {
         if( x < 0 ){
             direction = false; //set if they are going left or not
             if(canGoLeft && px>0){ //do not let the cat go outside the screen
-                px+=x;
+                if(px+x<0){
+                    px=0;
+                }
+                else{
+                    px+=x;   
+                }
             }
         }
         else{
             direction = true;
             //TODO: change this if changing screen size
-            if(canGoRight && px+41+x<800){
-                px+=x;
+            if(canGoRight && px+41<800){
+                if(px+41+x>800){
+                    px=759;
+                }
+                else{
+                    px+=x;   
+                }
             }
         }
         //change catnum according to count to animate the walking
@@ -300,7 +309,7 @@ public class Cat {
 
         }
         else if(pos.equals("right")){
-            if(platform.getX()+platform.getWidth()+1<760){
+            if(platform.getX()+platform.getWidth()+1<759f){
                 px = platform.getX()+platform.getWidth()+1;
             }
             else{
@@ -329,7 +338,9 @@ public class Cat {
         catnum = 0;
         count = 0;
         catV = 4;
+        jumpV = 0;
         speedCounter = 0;
+        jumpCounter = 0;
         falling = true;
         normalGravity = true;
         direction = true; //true if going right
@@ -338,7 +349,8 @@ public class Cat {
         canGoRight = true;
         canGoLeft = true;
         canGoUp = true;
-
+        updateCollideRects();
+        updateCatPoints();
     }
 
     //draw the cat
@@ -348,7 +360,9 @@ public class Cat {
                 if(falling){ //if the cat is falling, there is no animation
                     g.drawImage(normCatsR[0], px, py, gamePanel);
                 }
-                else if(standing){ //if the cat is standing still, there is no animation
+                //TODO: if screen size changes change this
+                //TODO: fix the stinking walking right thing
+                else if(standing || px == 759){ //if the cat is standing still, there is no animation
                     g.drawImage(normCatsR[2],px,py,gamePanel);
                 }
                 else { //else animate the walking in this position
@@ -360,7 +374,7 @@ public class Cat {
                 if(falling){
                     g.drawImage(normCatsL[0], px, py, gamePanel);
                 }
-                else if(standing){
+                else if(standing|| px == 0){
                     g.drawImage(normCatsL[2],px,py,gamePanel);
                 }
                 else{
@@ -375,7 +389,7 @@ public class Cat {
                 if(falling){
                     g.drawImage(upsideCatsR[0],px,py,gamePanel);
                 }
-                else if(standing){
+                else if(standing|| px == 759){
                     g.drawImage(upsideCatsR[2],px,py,gamePanel);
                 }
                 else{
@@ -388,7 +402,7 @@ public class Cat {
                 if(falling){
                     g.drawImage(upsideCatsL[0],px,py,gamePanel);
                 }
-                else if(standing){
+                else if(standing|| px == 0){
                     g.drawImage(upsideCatsL[2],px,py,gamePanel);
                 }
                 else{

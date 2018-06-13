@@ -2,6 +2,8 @@
 //Jenny Chen
 //package com.company;
 
+import sun.audio.*;
+import java.io.*;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -15,7 +17,8 @@ public class GrambityCat extends JFrame implements ActionListener{
     //buttons
     private JButton playBtn = new JButton("Play");	//the button that starts the game
     private JButton inBtn  = new JButton("Instructions");
-    private JButton backBtn = new JButton("Back");
+    private JButton iBackBtn = new JButton("Back"); //back button for the instruction page
+    private JButton sBackBtn = new JButton("Back"); //back button for the selection page
 
     //the 3 buttons to choose the levels
     private JButton lv1 = new JButton("1");
@@ -37,7 +40,8 @@ public class GrambityCat extends JFrame implements ActionListener{
         //buttons action listening
         playBtn.addActionListener(this);
         inBtn.addActionListener(this);
-        backBtn.addActionListener(this);
+        iBackBtn.addActionListener(this);
+        sBackBtn.addActionListener(this);
         lv1.addActionListener(this);
         lv2.addActionListener(this);
         lv3.addActionListener(this);
@@ -72,36 +76,45 @@ public class GrambityCat extends JFrame implements ActionListener{
         selectLabel.setLocation(-10,-15);
         selPage.add(selectLabel,1);
 
+        //TODO: make buttons invisible after new buttons are put in
         //play button
         playBtn.setSize(100,30);
         playBtn.setLocation(350,400);
-        mPage.add(playBtn,2);
+        //hideButton(playBtn); //makes button invisible
+        mPage.add(playBtn,JLayeredPane.DRAG_LAYER);
 
         //instruction button
         inBtn.setSize(150,30);
         inBtn.setLocation(350,500);
-        mPage.add(inBtn,1);
+        //hideButton(inBtn); //makes button invisible
+        mPage.add(inBtn,JLayeredPane.DRAG_LAYER);
 
         //back button
-        backBtn.setSize(150,30);
-        backBtn.setLocation(10,10);
-        iPage.add(backBtn,1);
-        backBtn.setSize(150,30);
-        backBtn.setLocation(10,10);
-        selPage.add(backBtn,1);
+        iBackBtn.setSize(150,30);
+        iBackBtn.setLocation(5,5);
+        //hideButton(iBackBtn); //makes button invisible
+        iPage.add(iBackBtn,JLayeredPane.DRAG_LAYER);
+
+        sBackBtn.setSize(150,30);
+        sBackBtn.setLocation(5,5);
+        //hideButton(sBackBtn); //makes button invisible
+        selPage.add(sBackBtn,JLayeredPane.DRAG_LAYER);
 
         //selection buttons
         lv1.setSize(50,50);
         lv1.setLocation(150,300);
-        selPage.add(lv1,1);
+        //hideButton(lv1); //makes button invisible
+        selPage.add(lv1,JLayeredPane.DRAG_LAYER);
 
         lv2.setSize(50,50);
         lv2.setLocation(225,300);
-        selPage.add(lv2,1);
+        //hideButton(lv2); //makes button invisible
+        selPage.add(lv2,JLayeredPane.DRAG_LAYER);
 
         lv3.setSize(50,50);
         lv3.setLocation(300,300);
-        selPage.add(lv3,1);
+        //hideButton(lv3); //makes button invisible
+        selPage.add(lv3,JLayeredPane.DRAG_LAYER);
 
         //the magic of adding cards
         cards = new JPanel(cLayout);
@@ -111,11 +124,22 @@ public class GrambityCat extends JFrame implements ActionListener{
         cards.add(iPage,"instructions");
         add(cards);
 
+        music();
+
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         setResizable(false);
         setVisible(true);
     }
+
+    //makes the button invisible
+    public void hideButton(JButton button){
+        button.setOpaque(false);
+        button.setContentAreaFilled(false);
+        button.setBorderPainted(false);
+        button.setText("");
+    }
+
     //starts the Timer
     public void start(){
         myTimer.start();
@@ -124,6 +148,7 @@ public class GrambityCat extends JFrame implements ActionListener{
     //finds the source of the actions and acts accordingly
     public void actionPerformed(ActionEvent evt) {
         Object source = evt.getSource();
+
         //show selection screen
         if(source==playBtn){
             cLayout.show(cards,"selection");
@@ -134,7 +159,7 @@ public class GrambityCat extends JFrame implements ActionListener{
             cLayout.show(cards,"instructions");
             game.requestFocus();
         }
-        if(source == backBtn){
+        if(source == sBackBtn || source == iBackBtn){
             cLayout.show(cards,"menu");
             game.requestFocus();
         }
@@ -178,10 +203,36 @@ public class GrambityCat extends JFrame implements ActionListener{
             game.repaint(); //draw everything
         }
     }
+    //from https://stackoverflow.com/questions/20811728/adding-music-sound-to-java-programs
+    public void music()
+    {
+        AudioPlayer MGP = AudioPlayer.player;
+        AudioStream BGM;
+        AudioData MD;
+
+        ContinuousAudioDataStream loop = null;
+
+        try
+        {
+            InputStream test = new FileInputStream(getClass().getResource("music.wav").getFile());
+            BGM = new AudioStream(test);
+            AudioPlayer.player.start(BGM);
+            MD = BGM.getData();
+            loop = new ContinuousAudioDataStream(MD);
+
+        }
+        catch(FileNotFoundException e){
+            System.out.print(e.toString());
+        }
+        catch(IOException error)
+        {
+            System.out.print(error.toString());
+        }
+        MGP.start(loop);
+    }
 
     //start the game
     public static void main(String[] args){
-        new Sound().setVisible(true);
         GrambityCat frame = new GrambityCat();
     }
 }
@@ -333,7 +384,6 @@ class GamePanel extends JPanel implements KeyListener{
         //if up is pressed, the player jumps
         if(keys[KeyEvent.VK_UP]){
             //the player can only change jump if they are on a platform
-
             //check if player is on a normal platform and is not jumping
             for(Platform platy:platforms){
                 if(!oldKeys[KeyEvent.VK_UP]&&platy.onPlat()) {
@@ -360,7 +410,7 @@ class GamePanel extends JPanel implements KeyListener{
             canJump = false;
         }
         //if space is pressed, the gravity is changed
-        if(keys[KeyEvent.VK_SPACE]){
+        if(keys[KeyEvent.VK_SPACE]&&!oldKeys[KeyEvent.VK_SPACE]){ //make sure the player can't hold space and continuously change gravity as soon as they hit a new platform
             //check normal platforms
             for(Platform platy:platforms){
                 if(platy.onPlat()){
@@ -388,12 +438,12 @@ class GamePanel extends JPanel implements KeyListener{
         }
     }
 
+    //check if player is on a platform
     public void checkPlatforms(){
-
-        //check if player is on a platform
         boolean onAPlat = false;
+        //check if player is on a platform
         for(Platform platy: platforms){
-            if(platy.onPlat()){ //check if player is on a platform
+            if(platy.onPlat()){
                 player.setJumping(false);
                 player.setFalling(false);
                 onAPlat = true;
@@ -411,6 +461,7 @@ class GamePanel extends JPanel implements KeyListener{
         if(!onAPlat){
             player.setFalling(true);
         }
+
         //check if player is colliding the bottom of a rectangle
         boolean underAPlat = false;
         for(Platform platy: platforms){
@@ -422,7 +473,6 @@ class GamePanel extends JPanel implements KeyListener{
         }
 
         if(bPlat1.bottomCollidePlat()){
-            System.out.println("heyo");
             player.setCanGoUp(false);
             underAPlat = true;
             player.setUnderPlat(bPlat1);

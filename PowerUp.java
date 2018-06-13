@@ -42,7 +42,7 @@ public class PowerUp {
         //only draws power up if it is still available
         if(available){
             g.setColor(Color.GRAY);
-            g.fillOval(px-5,py-5,10,10);
+            g.fillRect(px,py,10,10);
         }
     }
 }
