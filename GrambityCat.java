@@ -89,7 +89,7 @@ public class GrambityCat extends JFrame implements ActionListener{
         //hideButton(inBtn); //makes button invisible
         mPage.add(inBtn,JLayeredPane.DRAG_LAYER);
 
-        //back button
+        //back buttons
         iBackBtn.setSize(150,30);
         iBackBtn.setLocation(5,5);
         //hideButton(iBackBtn); //makes button invisible
@@ -355,10 +355,10 @@ class GamePanel extends JPanel implements KeyListener{
         Image b3 = new ImageIcon(getClass().getResource("breakingPlat2.png")).getImage();
         bImages[2] = b3;
 
-        bPlat1 = new BreakingPlat(500,500,300,40,bImages,player);
+        bPlat1 = new BreakingPlat(450,550,300,40,bImages,player);
 
         //PowerUp tings
-        speed1 = new PowerUp(375,440,player);
+        speed1 = new PowerUp(550,490,player);
         setSize(800,800);
         addKeyListener(this);
         mainFrame = m;    //the main frame

@@ -104,7 +104,7 @@ public class Cat {
         }
         else{
             direction = true;
-            //TODO: change this if changing screen size
+            //fTODO: change this if changing screen size
             if(canGoRight && px+41<800){
                 if(px+41+x>800){
                     px=759;
@@ -290,7 +290,6 @@ public class Cat {
     public void setUnderPlat(Platform plat){
         if(normalGravity){
             py = plat.getY()+plat.getHeight()+1;
-            System.out.println("getY "+plat.getY());
         }
         else{
             py = plat.getY()-1;
