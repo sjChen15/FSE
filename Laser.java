@@ -1,8 +1,10 @@
+package com.company;
 //Laser.java
 //kills the player if they walk into the laser
 //Laser also includes the switch that turns off the laser
 
 import java.awt.*;
+
 
 public class Laser {
     private int tx,ty; //position of the top laser node
@@ -64,19 +66,9 @@ public class Laser {
             g.fillRect(tx-5,ty,10,by-ty);
         }
 
-        //draw the switch
-        g.fillRect(sx-10,sy-30,20,30);
+        g.fillRect(sx-20,sy-50,40,50);
 
-        //draw the button for the switch
         g.setColor(Color.darkGray);
-        if(on){ //if the bar is there, that means the switch is on
-            g.fillRect(sx-3,sy-34,6,4);
-        }
-        else{
-            g.fillRect(sx-3,sy-31,6,1);
-        }
-
-        //draw the laser shooters
         g.fillRect(tx-6,ty,12,5);
         g.fillRect(bx-6,by-5,12,5);
 
