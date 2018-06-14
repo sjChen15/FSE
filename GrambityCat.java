@@ -33,7 +33,7 @@ public class GrambityCat extends JFrame implements ActionListener{
     //the game constructor
     public GrambityCat(){
         super("Grambity Cat");
-        setSize(800,600);   //screen size
+        setSize(1330,630);   //screen size
         game = new GamePanel(this,level);
         add(game);
 
@@ -50,11 +50,11 @@ public class GrambityCat extends JFrame implements ActionListener{
         myTimer = new javax.swing.Timer(5, this);
 
         //mainpage card
-        ImageIcon mainBack = new ImageIcon(getClass().getResource("mainback.png"));
+        ImageIcon mainBack = new ImageIcon(getClass().getResource("BACK.png"));
         JLabel backLabel = new JLabel(mainBack);
         JLayeredPane mPage = new JLayeredPane();
         mPage.setLayout(null);
-        backLabel.setSize(800,600);
+        backLabel.setSize(1330,630);
         backLabel.setLocation(-10,-15);
         mPage.add(backLabel,1);
 
@@ -63,16 +63,16 @@ public class GrambityCat extends JFrame implements ActionListener{
         JLabel instructLabel = new JLabel(instructBack);
         JLayeredPane iPage= new JLayeredPane();
         iPage.setLayout(null);
-        instructLabel.setSize(800,600);
+        instructLabel.setSize(1330,630);
         instructLabel.setLocation(-10,-15);
         iPage.add(instructLabel,1);
 
         //select level card
-        ImageIcon selectBack = new ImageIcon(getClass().getResource("selectBack.jpg"));
+        ImageIcon selectBack = new ImageIcon(getClass().getResource("lvlSelect.png"));
         JLabel selectLabel = new JLabel((selectBack));
         JLayeredPane selPage = new JLayeredPane();
         selPage.setLayout(null);
-        selectLabel.setSize(800,600);
+        selectLabel.setSize(1330,630);
         selectLabel.setLocation(-10,-15);
         selPage.add(selectLabel,1);
 
@@ -148,7 +148,6 @@ public class GrambityCat extends JFrame implements ActionListener{
     //finds the source of the actions and acts accordingly
     public void actionPerformed(ActionEvent evt) {
         Object source = evt.getSource();
-
         //show selection screen
         if(source==playBtn){
             cLayout.show(cards,"selection");
@@ -203,6 +202,7 @@ public class GrambityCat extends JFrame implements ActionListener{
             game.repaint(); //draw everything
         }
     }
+
     //from https://stackoverflow.com/questions/20811728/adding-music-sound-to-java-programs
     public void music()
     {
@@ -243,7 +243,7 @@ class GamePanel extends JPanel implements KeyListener{
     private GrambityCat mainFrame;
 
     //platforms
-    private ArrayList<Platform> platforms;
+    private ArrayList<Platform> platforms = new ArrayList<>();
 
     //keys
     private boolean[] keys,oldKeys;	//the state of the keyboard, oldkeys was the keyboard right before the current keyboard
@@ -252,16 +252,16 @@ class GamePanel extends JPanel implements KeyListener{
     private Image back;	//picture of the background of the main page
 
     //saws
-    private Saw s1;
+    private ArrayList<Saw> saws = new ArrayList<>();
 
     //lasers
-    private Laser l1;
+    private ArrayList<Laser> lasers = new ArrayList<>();
 
     //breaking plats
-    private BreakingPlat bPlat1;
+    private ArrayList<BreakingPlat> BPlatforms = new ArrayList<>();
 
     //speed up power ups
-    private PowerUp speed1;
+    private ArrayList<PowerUp> PUps = new ArrayList<>();
 
     //ints
     private int opx,opy; //coordinates of where the player started
@@ -274,8 +274,9 @@ class GamePanel extends JPanel implements KeyListener{
     public GamePanel(GrambityCat m,int level){
         keys = new boolean [KeyEvent.KEY_LAST+1]; //make the keyboard list as large as needed
         oldKeys = new boolean [KeyEvent.KEY_LAST+1];
+
         //images
-        back = new ImageIcon(getClass().getResource("background.png")).getImage();	//the background of the game
+        back = new ImageIcon(getClass().getResource("BG.png")).getImage();	//the background of the game
       
         //cat images
         Image[] nCatsR = new Image[3];
@@ -310,56 +311,81 @@ class GamePanel extends JPanel implements KeyListener{
         uCatsL[1] = upsideDownC2;
         uCatsL[2] = upsideDownC3;
 
+        //map things
+        /*
+        Image[] GTiles = new Image[3];
+        GTiles[0] = new ImageIcon(getClass().getResource("GTile1.png")).getImage();
+        GTiles[1] = new ImageIcon(getClass().getResource("GTile2.png")).getImage();
+        GTiles[2] = new ImageIcon(getClass().getResource("GTile3.png")).getImage();
+        */
+
+        ArrayList<String[]> map1 = new ArrayList<String[]>();
 
       //player tings
-        opx = 200;
-        opy = 300;
+        opx = 70;
+        opy = 490;
         player = new Cat(opx,opy, nCatsR, nCatsL,uCatsR,uCatsL);
-
-      //platform tings
-        Image plat = new ImageIcon(getClass().getResource("Platform.png")).getImage();
-        Image plat1 = new ImageIcon(getClass().getResource("Platform1.png")).getImage();
-        platforms = new ArrayList<>();
-        Platform platform = new Platform(5,450,100,20, plat,player);
-        platforms.add(platform);
-        Platform platform2 = new Platform(170,500,100,20, plat,player);
-        platforms.add(platform2);
-        Platform platform3 = new Platform(300,450,100,20, plat,player);
-        platforms.add(platform3);
-        Platform platform4 = new Platform(200,150,100,20, plat,player);
-        platforms.add(platform4);
-        Platform platform5 = new Platform(400,400,300,40,plat1,player);
-        platforms.add(platform5);
-        Platform platform6 = new Platform(400,0,300,40,plat1,player);
-        platforms.add(platform6);
-        Platform platform7 = new Platform(5,300,100,20, plat,player);
-        platforms.add(platform7);
 
         //saw tings
         Image[] sawPics = new Image[2];
-        Image saw1 = new ImageIcon(getClass().getResource("saw1.png")).getImage();
+        Image saw1 = new ImageIcon(getClass().getResource("Saw1.0.png")).getImage();
         sawPics[0] = saw1;
-        Image saw2 = new ImageIcon(getClass().getResource("saw2.png")).getImage();
+        Image saw2 = new ImageIcon(getClass().getResource("Saw2.0.png")).getImage();
         sawPics[1] = saw2;
-        s1 = new Saw(400,360,480,640,sawPics,"right",player);
-
-        //laser tings
-        l1 = new Laser(430,40,430,400,25,450,Color.PINK,player);
 
         //breaking plat tings
-        Image[] bImages = new Image[3];
-        Image b1 = new ImageIcon(getClass().getResource("Platform1.png")).getImage();
-        bImages[0] = b1;
-        Image b2 = new ImageIcon(getClass().getResource("breakingPlat1.png")).getImage();
-        bImages[1] = b2;
-        Image b3 = new ImageIcon(getClass().getResource("breakingPlat2.png")).getImage();
-        bImages[2] = b3;
+        ArrayList<Image[]> BPlats = new ArrayList<>();
+        Image[] bImages1 = new Image[3];
+        bImages1[0] = new ImageIcon(getClass().getResource("GTile1.png")).getImage();
+        bImages1[1] = new ImageIcon(getClass().getResource("Breaking1.png")).getImage();
+        bImages1[2] = new ImageIcon(getClass().getResource("BreakingLast1.png")).getImage();
+        BPlats.add(bImages1);
 
-        bPlat1 = new BreakingPlat(450,550,300,40,bImages,player);
+        Image[] bImages2 = new Image[3];
+        bImages2[0] = new ImageIcon(getClass().getResource("GTile2.png")).getImage();
+        bImages2[1] = new ImageIcon(getClass().getResource("Breaking2.png")).getImage();
+        bImages2[2] = new ImageIcon(getClass().getResource("BreakingLast2.png")).getImage();
+        BPlats.add(bImages2);
 
-        //PowerUp tings
-        speed1 = new PowerUp(550,490,player);
-        setSize(800,800);
+        Image[] bImages3 = new Image[3];
+        bImages3[0] = new ImageIcon(getClass().getResource("GTile3.png")).getImage();
+        bImages3[1] = new ImageIcon(getClass().getResource("Breaking3.png")).getImage();
+        bImages3[2] = new ImageIcon(getClass().getResource("BreakingLast2.png")).getImage();
+        BPlats.add(bImages3);
+
+
+        //mapcode
+
+        try{
+            //Scanner inFile = new Scanner (new File("Map2.txt"));
+            Scanner inFile = new Scanner ( new File(getClass().getResource("Map2.txt").getFile()));
+            while(inFile.hasNextLine()){
+                String n = inFile.nextLine();
+                String[] stuff = n.split(",");
+                if (stuff.length == 3){
+                    if (stuff[2].contains("GTile"))
+                        platforms.add(new Platform(Integer.parseInt(stuff[0])*35,Integer.parseInt(stuff[1])*35,35,35,new ImageIcon(getClass().getResource(stuff[2])).getImage(),player));
+                    else{
+                        BPlatforms.add(new BreakingPlat(Integer.parseInt(stuff[0])*35,Integer.parseInt(stuff[1])*35,35,35,BPlats.get(Integer.parseInt(stuff[2])),player));
+                    }
+                }
+                else if (stuff.length == 5){
+                    saws.add(new Saw(Integer.parseInt(stuff[0])*35,Integer.parseInt(stuff[1])*35,Integer.parseInt(stuff[2])*35,Integer.parseInt(stuff[3])*35,sawPics,stuff[4], player));
+                }
+                else if (stuff.length == 9){
+                    lasers.add(new Laser(Integer.parseInt(stuff[0])*35,Integer.parseInt(stuff[1])*35,Integer.parseInt(stuff[2])*35,Integer.parseInt(stuff[3])*35,Integer.parseInt(stuff[4])*35,Integer.parseInt(stuff[5])*35,new Color(Integer.parseInt(stuff[5]),Integer.parseInt(stuff[6]),Integer.parseInt(stuff[7])) , player));
+                }
+                else if (stuff.length == 2){
+                    PUps.add(new PowerUp(Integer.parseInt(stuff[0])*35,Integer.parseInt(stuff[1])*35, player));
+                }
+            }
+        }
+        catch(IOException ex){
+            System.out.println("Dude, did you misplace Map1.txt?");
+        }
+
+        //frame stuffs
+        setSize(1330,630);
         addKeyListener(this);
         mainFrame = m;    //the main frame
     }
@@ -392,9 +418,11 @@ class GamePanel extends JPanel implements KeyListener{
                 }
             }
             //check the same things with the breaking platform objects
-            if(!oldKeys[KeyEvent.VK_UP]&&bPlat1.onPlat()) {
-                jCounter = 10; //how long the player will receive an upward velocity
-                canJump = true;
+            for (BreakingPlat bplat:BPlatforms){
+                if(!oldKeys[KeyEvent.VK_UP]&&bplat.onPlat()) {
+                    jCounter = 10; //how long the player will receive an upward velocity
+                    canJump = true;
+                }
             }
 
             //if the player still gets jump velocity, add it on
@@ -410,7 +438,7 @@ class GamePanel extends JPanel implements KeyListener{
             canJump = false;
         }
         //if space is pressed, the gravity is changed
-        if(keys[KeyEvent.VK_SPACE]&&!oldKeys[KeyEvent.VK_SPACE]){ //make sure the player can't hold space and continuously change gravity as soon as they hit a new platform
+        if(keys[KeyEvent.VK_SPACE] && !oldKeys[KeyEvent.VK_SPACE]){ //make sure the player can't hold space and continuously change gravity as soon as they hit a new platform
             //check normal platforms
             for(Platform platy:platforms){
                 if(platy.onPlat()){
@@ -425,15 +453,17 @@ class GamePanel extends JPanel implements KeyListener{
                 }
             }
             //check breaking plats
-            if(bPlat1.onPlat()){
-                player.setOnPlat(bPlat1,false);
-                if(gravity*-1<0){
-                    player.setNormalGravity(false);
+            for (BreakingPlat bplat: BPlatforms){
+                if(bplat.onPlat()){
+                    player.setOnPlat(bplat,false);
+                    if(gravity*-1<0){
+                        player.setNormalGravity(false);
+                    }
+                    else{
+                        player.setNormalGravity(true);
+                    }
+                    gravity = gravity*-1;
                 }
-                else{
-                    player.setNormalGravity(true);
-                }
-                gravity = gravity*-1;
             }
         }
     }
@@ -451,11 +481,13 @@ class GamePanel extends JPanel implements KeyListener{
             }
         }
 
-        if(bPlat1.onPlat()){
-            player.setJumping(false);
-            player.setFalling(false);
-            onAPlat = true;
-            player.setOnPlat(bPlat1,true);
+        for(BreakingPlat bplat: BPlatforms){
+            if(bplat.onPlat()){
+                player.setJumping(false);
+                player.setFalling(false);
+                onAPlat = true;
+                player.setOnPlat(bplat,true);
+            }
         }
 
         if(!onAPlat){
@@ -472,10 +504,12 @@ class GamePanel extends JPanel implements KeyListener{
             }
         }
 
-        if(bPlat1.bottomCollidePlat()){
-            player.setCanGoUp(false);
-            underAPlat = true;
-            player.setUnderPlat(bPlat1);
+        for(BreakingPlat bplat: BPlatforms){
+            if(bplat.bottomCollidePlat()){
+                player.setCanGoUp(false);
+                underAPlat = true;
+                player.setUnderPlat(bplat);
+            }
         }
 
         if(!underAPlat){
@@ -492,10 +526,12 @@ class GamePanel extends JPanel implements KeyListener{
             }
         }
 
-        if(bPlat1.leftCollidePlat()){
-            player.setCanGoRight(false);
-            canRight = false;
-            player.setSideRect(bPlat1,"left");
+        for(BreakingPlat bplat : BPlatforms){
+            if(bplat.leftCollidePlat()){
+                player.setCanGoRight(false);
+                canRight = false;
+                player.setSideRect(bplat,"left");
+            }
         }
 
         if(canRight){
@@ -511,18 +547,21 @@ class GamePanel extends JPanel implements KeyListener{
                 player.setSideRect(platy,"right");
             }
         }
-        if(bPlat1.rightCollidePlat()){
-            player.setCanGoLeft(false);
-            canLeft = false;
-            player.setSideRect(bPlat1,"right");
+        for(BreakingPlat bplat: BPlatforms) {
+            if (bplat.rightCollidePlat()) {
+                player.setCanGoLeft(false);
+                canLeft = false;
+                player.setSideRect(bplat, "right");
+            }
         }
         if(canLeft){
             player.setCanGoLeft(true);
         }
 
-
         //checks if the platform is broken
-        bPlat1.checkBreakingPoint();
+        for(BreakingPlat bplat: BPlatforms) {
+            bplat.checkBreakingPoint();
+        }
     }
 
     //check various aspects of the cat movin
@@ -543,20 +582,26 @@ class GamePanel extends JPanel implements KeyListener{
 
     //move the saw and check if the cat has collided with it
     public void updateSaws(){
-        s1.checkCat();
-        s1.move();
+        for(Saw saw: saws){
+            saw.checkCat();
+            saw.move();
+        }
     }
 
     //checks if the cat has collided with the laser or the switch
     public void updateLasers(){
-        l1.checkSwitch();
-        l1.checkCat();
+        for (Laser laser: lasers) {
+            laser.checkSwitch();
+            laser.checkCat();
+        }
     }
 
     //checks if the powerup has been picked up
     public void checkPowerUp(){
-        speed1.checkPowerUp();
-        player.checkSpeedUp();
+        for(PowerUp pup: PUps){
+            pup.checkPowerUp();
+            player.checkSpeedUp();
+        }
     }
 
     //checks if the player is dead
@@ -564,10 +609,18 @@ class GamePanel extends JPanel implements KeyListener{
         if(player.isDead()){ //if so, the level is reset
             gravity  = 3;
             player.reset();
-            bPlat1.reset();
-            l1.reset();
-            speed1.reset();
-            s1.reset();
+            for(BreakingPlat bplat : BPlatforms) {
+                bplat.reset();
+            }
+            for(Laser laser: lasers){
+                laser.reset();
+            }
+            for(PowerUp pup: PUps){
+                pup.reset();
+            }
+            for(Saw saws: saws){
+                saws.reset();
+            }
         }
     }
 
@@ -589,14 +642,21 @@ class GamePanel extends JPanel implements KeyListener{
     //paintComponent draws all the pictures onto the screen
     public void paintComponent(Graphics g){
         g.drawImage(back,0,0,this);  //draw background
-        s1.draw(g,this);//draw the saw
+        for (Saw saw: saws){
+            saw.draw(g,this);
+        }
         for(Platform platy:platforms){ //draw the platforms
             platy.draw(g,this);
         }
-
-        l1.draw(g,this); //draw the laser
-        bPlat1.draw(g,this); //draw the breakingPlat
-        speed1.draw(g,this); //draw the PowerUp
+        for (Laser laser: lasers){
+            laser.draw(g,this);
+        }
+        for(PowerUp pup: PUps){
+            pup.draw(g,this);
+        }
+        for(BreakingPlat bplat : BPlatforms) {
+            bplat.draw(g, this); //draw the breakingPlat
+        }
         player.draw(g,this); //draw the player
     }
 }
