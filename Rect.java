@@ -2,6 +2,7 @@
 //Rect object class
 //checks does the same things as Rectangle
 //except has an extra method called overlaps
+package com.company;
 
 class Rect{
     private double x,y,height,width; //the position and height and width

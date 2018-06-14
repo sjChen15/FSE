@@ -1,3 +1,5 @@
+package com.company;
+
 //PowerUp.java
 //object class
 //if player touches the power up, they speed up
@@ -42,7 +44,7 @@ public class PowerUp {
         //only draws power up if it is still available
         if(available){
             g.setColor(Color.GRAY);
-            g.fillRect(px,py,10,10);
+            g.fillOval(px-5,py-5,10,10);
         }
     }
 }

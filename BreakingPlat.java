@@ -1,3 +1,5 @@
+package com.company;
+
 //BreakingPlat
 //belongs to the Platform object class
 //its special feature is that it breaks after the player stands on it for sometime
@@ -10,7 +12,7 @@ public class BreakingPlat extends Platform{
 
     private int px,py,w,h;  //the x and y position of the platform and its width and height
     private int breakingPoint = 120;    //if 0, the platform is no longer there
-    private int collideW = 3; //the width of the collide rects
+    private int collideW = 4; //the width of the collide rects
 
     private boolean broken = false; //if true, the platform is no longer there
 
