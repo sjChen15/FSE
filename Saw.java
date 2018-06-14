@@ -7,7 +7,7 @@ import java.awt.*;
 public class Saw {
     private int x,y,minX,maxX; //initial x and y values, maximum and mininum x value
     private int ox,oy;  //original x and y value
-    private int radius = 30;    //radius of the saw
+    private int radius = 38;    //radius of the saw
     private int direction = 1; //positive 1 if it goes right first
     private int oDirection = 1; //initial direction
     private int sawV = 3; //velocity of saw
@@ -66,8 +66,9 @@ public class Saw {
         Point[] points = cat.getCatPoints();
         for(Point p:points){
             //checks if any of the 8 points on the cat are in the radius of the saw
-            if(Math.hypot((x+radius)-p.getX(),(y+radius)-p.getY())<=radius){
+            if(Math.hypot((x+radius)-p.getX(),(y+radius)-p.getY())<radius){
                 //if so the cat dies
+                System.out.println("Saw death");
                 cat.setDead(true);
             }
         }
