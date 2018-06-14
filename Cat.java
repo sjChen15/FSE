@@ -104,10 +104,10 @@ public class Cat {
         }
         else{
             direction = true;
-            //fTODO: change this if changing screen size
-            if(canGoRight && px+41<800){
-                if(px+41+x>800){
-                    px=759;
+            //TODO: change this if changing screen size
+            if(canGoRight && px+41<1330){
+                if(px+41+x>1330){
+                    px=1289;
                 }
                 else{
                     px+=x;   
@@ -137,7 +137,7 @@ public class Cat {
             if(y<0 && canGoUp){ //if the cat is going up, make sure it cacn
                 py+= y;
             }
-            if(py+y<0 || py+y>600) { //if the cat falls out of the screen, it dies
+            if(py+y<0 || py+y>630) { //if the cat falls out of the screen, it dies
                 dead = true;
             }
         }
@@ -308,11 +308,11 @@ public class Cat {
 
         }
         else if(pos.equals("right")){
-            if(platform.getX()+platform.getWidth()+1<759f){
+            if(platform.getX()+platform.getWidth()+1<1289){
                 px = platform.getX()+platform.getWidth()+1;
             }
             else{
-                px=759;
+                px=1289;
             }
         }
         else{
@@ -361,7 +361,7 @@ public class Cat {
                 }
                 //TODO: if screen size changes change this
                 //TODO: fix the stinking walking right thing
-                else if(standing || px == 759){ //if the cat is standing still, there is no animation
+                else if(standing || px == 1289){ //if the cat is standing still, there is no animation
                     g.drawImage(normCatsR[2],px,py,gamePanel);
                 }
                 else { //else animate the walking in this position
@@ -388,7 +388,7 @@ public class Cat {
                 if(falling){
                     g.drawImage(upsideCatsR[0],px,py,gamePanel);
                 }
-                else if(standing|| px == 759){
+                else if(standing|| px == 1289){
                     g.drawImage(upsideCatsR[2],px,py,gamePanel);
                 }
                 else{

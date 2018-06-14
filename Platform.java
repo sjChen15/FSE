@@ -7,7 +7,7 @@ import java.awt.*;
 public class Platform {
     private int px,py; //position of platform (top left corner)
     private int h,w; //width and height of platform
-    private int collideW = 3; //width of the collide rects
+    private int collideW = 4; //width of the collide rects
 
     private Image platPic; //image of platform
 
