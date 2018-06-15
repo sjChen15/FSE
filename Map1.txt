@@ -75,11 +75,6 @@
 18,16,GTile2.png
 19,16,GTile2.png
 20,16,GTile2.png
-21,16,GTile2.png
-22,16,GTile2.png
-23,16,GTile2.png
-24,16,GTile2.png
-25,16,GTile2.png
 26,16,GTile2.png
 27,16,GTile2.png
 28,16,GTile2.png

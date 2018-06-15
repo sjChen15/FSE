@@ -39,6 +39,7 @@ public class GrambityCat extends JFrame implements ActionListener{
         game = new GamePanel(this,level);
         add(game);
 
+
         //buttons action listening
         playBtn.addActionListener(this);
         inBtn.addActionListener(this);
@@ -166,33 +167,39 @@ public class GrambityCat extends JFrame implements ActionListener{
         }
         //this is where we can choose different levels
         if(source==lv1){
-            level = 1;
+            System.out.println("set level");
+            game.setlevel(1);
             cLayout.show(cards,"game");
             myTimer.start();
             game.requestFocus();
         }
 
         if(source==lv2){
+            game.setlevel(2);
             level = 2;
             if(hLevel>=2){
-                cLayout.show(cards,"game");
-                myTimer.start();
+
             }
+
             else{
-                cLayout.show(cards,"selection");
+                //cLayout.show(cards,"selection");
             }
+            cLayout.show(cards,"game");
+            myTimer.start();
             game.requestFocus();
 
         }
         if(source==lv3){
+            game.setlevel(3);
             level = 3;
             if(hLevel>=3){
-                cLayout.show(cards,"game");
-                myTimer.start();
+
             }
             else{
-                cLayout.show(cards,"selection");
+                //cLayout.show(cards,"selection");
             }
+            cLayout.show(cards,"game");
+            myTimer.start();
             game.requestFocus();
         }
         //if the game is running, run game things
@@ -204,8 +211,18 @@ public class GrambityCat extends JFrame implements ActionListener{
             game.updateLasers();    //check colliding of lasers
             game.checkPowerUp();    //check colliding of the powerups
             game.checkReset();  //check if player died and game needs to be reset
+            if(game.CheckDoor()){
+                if(game.getlevel()<=3){
+                    System.out.println("hi");
+                    game.setlevel(game.getlevel()+1);
+                }
+            }
             game.repaint(); //draw everything
+
         }
+    }
+    public void addlevel(){
+        level++;
     }
 
     //from https://stackoverflow.com/questions/20811728/adding-music-sound-to-java-programs
@@ -268,12 +285,21 @@ class GamePanel extends JPanel implements KeyListener{
     //speed up power ups
     private ArrayList<PowerUp> PUps = new ArrayList<>();
 
+
     //ints
     private int opx,opy; //coordinates of where the player started
     private int gravity = 3; //gravity value
     private int jCounter; //player can only hold jump for so long, jCounter keeps track of that
 
     private ArrayList<Door> doors = new ArrayList<>();
+
+    private int levels = 1;
+
+    private Image[] nCatsR;
+    private Image[] nCatsL;
+    private Image[] uCatsR;
+    private Image[] uCatsL;
+
 
     //booleans
     private boolean canJump; //makes sure the player can jump, ensures there is no double jumping
@@ -284,10 +310,12 @@ class GamePanel extends JPanel implements KeyListener{
 
         //images
         back = new ImageIcon(getClass().getResource("BG.png")).getImage();	//the background of the game
+
+
       
         //cat images
-        Image[] nCatsR = new Image[3];
-        Image[] nCatsL = new Image[3];
+        nCatsR = new Image[3];
+        nCatsL = new Image[3];
         Image normalC1 = new ImageIcon(getClass().getResource("cat002.png")).getImage();
         Image normalC2 = new ImageIcon(getClass().getResource("cat003.png")).getImage();	//the player's character image
         Image normalC3 = new ImageIcon(getClass().getResource("cat001.png")).getImage();
@@ -302,8 +330,8 @@ class GamePanel extends JPanel implements KeyListener{
         nCatsL[1] = normalC2;
         nCatsL[2] = normalC3;
 
-        Image[] uCatsR = new Image[3];
-        Image[] uCatsL = new Image[3];
+        uCatsR = new Image[3];
+        uCatsL = new Image[3];
         Image upsideDownC1 = new ImageIcon(getClass().getResource("cat002D.png")).getImage();
         Image upsideDownC2 = new ImageIcon(getClass().getResource("cat003D.png")).getImage();	//the player's character image
         Image upsideDownC3 = new ImageIcon(getClass().getResource("cat001D.png")).getImage();
@@ -324,13 +352,14 @@ class GamePanel extends JPanel implements KeyListener{
         opy = 490;
         player = new Cat(opx,opy, nCatsR, nCatsL,uCatsR,uCatsL);
 
-        MakeMap(saws, platforms,BPlatforms,lasers,PUps,LevelChoice(level),doors);
+        //MakeMap(saws, platforms,BPlatforms,lasers,PUps,LevelChoice(levels),doors);
 
         //frame stuffs
         setSize(1330,630);
         addKeyListener(this);
         mainFrame = m;    //the main frame
     }
+
 
     //starts the game
     public void addNotify(){
@@ -339,16 +368,44 @@ class GamePanel extends JPanel implements KeyListener{
         requestFocus();
         mainFrame.start();
     }
-    public String LevelChoice(int level){
-        if (level == 1){
+    public int getlevel(){
+        return levels;
+    }
+    public void setlevel(int lvl){
+        levels = lvl;
+        MakeMap(saws, platforms,BPlatforms,lasers,PUps,LevelChoice(levels),doors);
+    }
+    public String LevelChoice(int lvl){
+        if (lvl == 1){
             return "Map1.txt";
         }
-        else if (level == 2){
+        else if (lvl == 2){
             return "Map2.txt";
         }
         else{
+            System.out.println("hiiiii");
+            System.out.println(lvl);
             return "Map3.txt";
         }
+    }
+    public boolean CheckDoor(){
+        System.out.println(saws.size());
+        if(doors.size()>0){
+            if (doors.get(0).nextLevel()) {
+                System.out.println("refresh");
+                saws.removeAll(saws);
+                platforms.removeAll(platforms);
+                BPlatforms.removeAll(BPlatforms);
+                lasers.removeAll(lasers);
+                PUps.removeAll(PUps);
+                doors.removeAll(doors);
+                player = new Cat(opx,opy, nCatsR, nCatsL,uCatsR,uCatsL);
+                return true;
+            }
+        }
+        else{
+        }
+        return false;
     }
     public void MakeMap(ArrayList<Saw> saws, ArrayList<Platform> platforms, ArrayList<BreakingPlat> BPlatforms, ArrayList<Laser> lasers, ArrayList<PowerUp> PUps, String map, ArrayList<Door> doory){
         //breaking plat tings
