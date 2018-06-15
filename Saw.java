@@ -1,4 +1,3 @@
-package com.company;
 //Saw.java
 //Saw object class
 //moves back and forth, if the player touches the saw, they die
@@ -24,7 +23,6 @@ public class Saw {
         oy = y;
         this.minX = minX;
         this.maxX = maxX;
-        //TODO: make actual saw pics
         pics = sawPics;
         //switches direction to right if d is not left
         if(d.equals("left")){

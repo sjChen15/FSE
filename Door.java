@@ -1,11 +1,8 @@
-package com.company;
 //Door.java
 //object that brings the player to the next level
 
 import javax.swing.*;
 import java.awt.*;
-
-import static java.awt.Color.BLUE;
 
 public class Door {
     private int px,py;

@@ -1,6 +1,5 @@
 //GrambityCat.java
 //Jenny Chen
-package com.company;
 
 import sun.audio.*;
 import java.io.*;
@@ -19,6 +18,7 @@ public class GrambityCat extends JFrame implements ActionListener{
     private JButton inBtn  = new JButton("Instructions");
     private JButton iBackBtn = new JButton("Back"); //back button for the instruction page
     private JButton sBackBtn = new JButton("Back"); //back button for the selection page
+    private JButton eBackBtn = new JButton("Back"); //back button for the end page
 
     //the 3 buttons to choose the levels
     private JButton lv1 = new JButton("1");
@@ -45,6 +45,7 @@ public class GrambityCat extends JFrame implements ActionListener{
         inBtn.addActionListener(this);
         iBackBtn.addActionListener(this);
         sBackBtn.addActionListener(this);
+        eBackBtn.addActionListener(this);
         lv1.addActionListener(this);
         lv2.addActionListener(this);
         lv3.addActionListener(this);
@@ -79,7 +80,15 @@ public class GrambityCat extends JFrame implements ActionListener{
         selectLabel.setLocation(-10,-15);
         selPage.add(selectLabel,1);
 
-        //TODO: make buttons invisible after new buttons are put in
+        //end card
+        ImageIcon endBack = new ImageIcon(getClass().getResource("EndScreen.png"));
+        JLabel endLabel = new JLabel((endBack));
+        JLayeredPane endPage = new JLayeredPane();
+        endPage.setLayout(null);
+        endLabel.setSize(1330,630);
+        endLabel.setLocation(-10,-15);
+        endPage.add(endLabel,1);
+
         //play button
         playBtn.setSize(160,66);
         playBtn.setLocation(619,457);
@@ -103,6 +112,11 @@ public class GrambityCat extends JFrame implements ActionListener{
         hideButton(sBackBtn); //makes button invisible
         selPage.add(sBackBtn,JLayeredPane.DRAG_LAYER);
 
+        eBackBtn.setSize(155,63);
+        eBackBtn.setLocation(15,20);
+        hideButton(eBackBtn); //makes button invisible
+        endPage.add(eBackBtn,JLayeredPane.DRAG_LAYER);
+
         //selection buttons
         lv1.setSize(70,80);
         lv1.setLocation(185,260);
@@ -125,6 +139,7 @@ public class GrambityCat extends JFrame implements ActionListener{
         cards.add(selPage,"selection");
         cards.add(game, "game");
         cards.add(iPage,"instructions");
+        cards.add(endPage, "end");
         add(cards);
 
         music();
@@ -161,13 +176,12 @@ public class GrambityCat extends JFrame implements ActionListener{
             cLayout.show(cards,"instructions");
             game.requestFocus();
         }
-        if(source == sBackBtn || source == iBackBtn){
+        if(source == sBackBtn || source == iBackBtn || source ==eBackBtn){
             cLayout.show(cards,"menu");
             game.requestFocus();
         }
         //this is where we can choose different levels
         if(source==lv1){
-            System.out.println("set level");
             game.setlevel(1);
             cLayout.show(cards,"game");
             myTimer.start();
@@ -212,9 +226,11 @@ public class GrambityCat extends JFrame implements ActionListener{
             game.checkPowerUp();    //check colliding of the powerups
             game.checkReset();  //check if player died and game needs to be reset
             if(game.CheckDoor()){
-                if(game.getlevel()<=3){
-                    System.out.println("hi");
+                if(game.getlevel()<3){
                     game.setlevel(game.getlevel()+1);
+                }
+                else{
+                    cLayout.show(cards,"end");
                 }
             }
             game.repaint(); //draw everything
@@ -368,11 +384,15 @@ class GamePanel extends JPanel implements KeyListener{
         requestFocus();
         mainFrame.start();
     }
+
     public int getlevel(){
         return levels;
     }
+
     public void setlevel(int lvl){
         levels = lvl;
+        player.setDead(true);
+        checkReset();
         MakeMap(saws, platforms,BPlatforms,lasers,PUps,LevelChoice(levels),doors);
     }
     public String LevelChoice(int lvl){
@@ -383,16 +403,12 @@ class GamePanel extends JPanel implements KeyListener{
             return "Map2.txt";
         }
         else{
-            System.out.println("hiiiii");
-            System.out.println(lvl);
             return "Map3.txt";
         }
     }
     public boolean CheckDoor(){
-        System.out.println(saws.size());
         if(doors.size()>0){
             if (doors.get(0).nextLevel()) {
-                System.out.println("refresh");
                 saws.removeAll(saws);
                 platforms.removeAll(platforms);
                 BPlatforms.removeAll(BPlatforms);
@@ -444,7 +460,6 @@ class GamePanel extends JPanel implements KeyListener{
                     if (stuff[2].contains("GTile"))
                         platforms.add(new Platform(Integer.parseInt(stuff[0])*35,Integer.parseInt(stuff[1])*35,35,35,new ImageIcon(getClass().getResource(stuff[2])).getImage(),player));
                     else if (stuff[2].contains("Door")){
-                        System.out.println("hi");
                         doory.add( new Door(Integer.parseInt(stuff[0])*35,Integer.parseInt(stuff[1])*35,DoorImage, player));
                     }
                     else{

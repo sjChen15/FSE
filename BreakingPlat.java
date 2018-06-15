@@ -14,7 +14,6 @@ public class BreakingPlat extends Platform{
 
     private boolean broken = false; //if true, the platform is no longer there
 
-    //TODO: get good pictures, change size if needed, delete what is in draw
     private Rect[] collideRects= new Rect[4];   //the list that holds the collide Rects
     private Rect topRect,bottomRect,leftRect,rightRect; //the four rectangles around the platform tat check for collisions
 
@@ -114,10 +113,5 @@ public class BreakingPlat extends Platform{
             g.drawImage(breakingPlats[2],px,py,gamePanel);
         }
         //if there is no counter, no picture is drawn
-        g.setColor(Color.ORANGE);
-        g.drawRect(px,py-collideW,w,collideW);
-        g.drawRect(px,py+h,w,collideW);
-        g.drawRect(px-collideW,py,collideW,h);
-        g.drawRect(px+w,py,collideW,h);
     }
 }

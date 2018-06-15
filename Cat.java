@@ -104,7 +104,6 @@ public class Cat {
         }
         else{
             direction = true;
-            //TODO: change this if changing screen size
             if(canGoRight && px+41<1330){
                 if(px+41+x>1330){
                     px=1289;
@@ -134,7 +133,7 @@ public class Cat {
             if(y>0){
                 py+= y;
             }
-            if(y<0 && canGoUp){ //if the cat is going up, make sure it cacn
+            if(y<0 && canGoUp){ //if the cat is going up, make sure it can
                 py+= y;
             }
             if(py+y<0 || py+y>630) { //if the cat falls out of the screen, it dies
@@ -196,12 +195,12 @@ public class Cat {
     public void updateCollideRects(){
         catRect = new Rect(px,py,40,61);
         if(direction){
-            topRect = new Rect(px+4,py,24,1);
-            bottomRect = new Rect(px+4,py+60,24,1);
+            topRect = new Rect(px+2,py,26,1);
+            bottomRect = new Rect(px+2,py+60,24,1);
         }
         else{
-            topRect = new Rect(px+12,py,24,1);
-            bottomRect = new Rect(px+12,py+60,24,1);
+            topRect = new Rect(px+10,py,26,1);
+            bottomRect = new Rect(px+10,py+60,24,1);
         }
         leftRect = new Rect(px,py,1,61);
         rightRect = new Rect(px+39,py,1,61);
@@ -292,7 +291,7 @@ public class Cat {
             py = plat.getY()+plat.getHeight()+1;
         }
         else{
-            py = plat.getY()-1;
+            py = plat.getY()-61;
         }
     }
 
@@ -308,7 +307,7 @@ public class Cat {
 
         }
         else if(pos.equals("right")){
-            if(platform.getX()+platform.getWidth()+1<1289){
+            if(platform.getX()+platform.getWidth()<1289){
                 px = platform.getX()+platform.getWidth()+1;
             }
             else{
@@ -359,8 +358,6 @@ public class Cat {
                 if(falling){ //if the cat is falling, there is no animation
                     g.drawImage(normCatsR[0], px, py, gamePanel);
                 }
-                //TODO: if screen size changes change this
-                //TODO: fix the stinking walking right thing
                 else if(standing || px == 1289){ //if the cat is standing still, there is no animation
                     g.drawImage(normCatsR[2],px,py,gamePanel);
                 }
@@ -409,18 +406,6 @@ public class Cat {
                 }
 
             }
-        }
-
-        //TODO: delete these after
-        g.setColor(Color.GREEN);
-        g.drawRect((int)topRect.getX(),(int)topRect.getY(),(int)topRect.getWidth(),(int)topRect.getHeight());
-        g.drawRect((int)bottomRect.getX(),(int)bottomRect.getY(),(int)bottomRect.getWidth(),(int)bottomRect.getHeight());
-        g.drawRect((int)leftRect.getX(),(int)leftRect.getY(),(int)leftRect.getWidth(),(int)leftRect.getHeight());
-        g.drawRect((int)rightRect.getX(),(int)rightRect.getY(),(int)rightRect.getWidth(),(int)rightRect.getHeight());
-
-        g.setColor(Color.magenta);
-        for(Point p:catPoints){
-            g.drawRect((int)p.getX(),(int)p.getY(),1,1);
         }
     }
 }

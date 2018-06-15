@@ -97,10 +97,5 @@ public class Platform {
     //draws the platform
     public void draw(Graphics g, GamePanel gamePanel) {
         g.drawImage(platPic,px,py,gamePanel);
-        g.setColor(Color.ORANGE);
-        g.drawRect(px,py-collideW,w,collideW);
-        g.drawRect(px,py+h,w,collideW);
-        g.drawRect(px-collideW,py,collideW,h);
-        g.drawRect(px+w,py,collideW,h);
     }
 }

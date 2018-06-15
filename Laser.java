@@ -10,11 +10,6 @@ public class Laser {
     private int sx,sy; //position of the switch
     private boolean on = true; //true if switch has not been touched, if so, laser is on as well
 
-    //TODO: get actual good pictures, fix collide rects if needed, change all the stuff in draw
-    private Image s;//switch image
-    private Image topLaser;//the things that the laser shoots out of
-    private Image bottomLaser;
-
     private Rect laserRect; //the Rect of the Laser
     private Rect switchRect; //the Rect of the switch that turns the laser off
 
