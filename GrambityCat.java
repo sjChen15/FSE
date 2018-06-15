@@ -1,6 +1,6 @@
 //GrambityCat.java
 //Jenny Chen
-//package com.company;
+package com.company;
 
 import sun.audio.*;
 import java.io.*;
@@ -29,6 +29,8 @@ public class GrambityCat extends JFrame implements ActionListener{
 
     private int level = 1; //level that player chose
     private int hLevel = 1; //the highest level the player can play
+
+    private String map;
 
     //the game constructor
     public GrambityCat(){
@@ -78,42 +80,42 @@ public class GrambityCat extends JFrame implements ActionListener{
 
         //TODO: make buttons invisible after new buttons are put in
         //play button
-        playBtn.setSize(100,30);
-        playBtn.setLocation(350,400);
-        //hideButton(playBtn); //makes button invisible
+        playBtn.setSize(160,66);
+        playBtn.setLocation(619,457);
+        hideButton(playBtn); //makes button invisible
         mPage.add(playBtn,JLayeredPane.DRAG_LAYER);
 
         //instruction button
-        inBtn.setSize(150,30);
-        inBtn.setLocation(350,500);
-        //hideButton(inBtn); //makes button invisible
+        inBtn.setSize(283,66);
+        inBtn.setLocation(557,530);
+        hideButton(inBtn); //makes button invisible
         mPage.add(inBtn,JLayeredPane.DRAG_LAYER);
 
         //back buttons
-        iBackBtn.setSize(150,30);
-        iBackBtn.setLocation(5,5);
-        //hideButton(iBackBtn); //makes button invisible
+        iBackBtn.setSize(155,63);
+        iBackBtn.setLocation(18,17);
+        hideButton(iBackBtn); //makes button invisible
         iPage.add(iBackBtn,JLayeredPane.DRAG_LAYER);
 
-        sBackBtn.setSize(150,30);
-        sBackBtn.setLocation(5,5);
-        //hideButton(sBackBtn); //makes button invisible
+        sBackBtn.setSize(155,63);
+        sBackBtn.setLocation(15,20);
+        hideButton(sBackBtn); //makes button invisible
         selPage.add(sBackBtn,JLayeredPane.DRAG_LAYER);
 
         //selection buttons
-        lv1.setSize(50,50);
-        lv1.setLocation(150,300);
-        //hideButton(lv1); //makes button invisible
+        lv1.setSize(70,80);
+        lv1.setLocation(185,260);
+        hideButton(lv1); //makes button invisible
         selPage.add(lv1,JLayeredPane.DRAG_LAYER);
 
-        lv2.setSize(50,50);
-        lv2.setLocation(225,300);
-        //hideButton(lv2); //makes button invisible
+        lv2.setSize(70,80);
+        lv2.setLocation(398,260);
+        hideButton(lv2); //makes button invisible
         selPage.add(lv2,JLayeredPane.DRAG_LAYER);
 
-        lv3.setSize(50,50);
-        lv3.setLocation(300,300);
-        //hideButton(lv3); //makes button invisible
+        lv3.setSize(70,80);
+        lv3.setLocation(623,260);
+        hideButton(lv3); //makes button invisible
         selPage.add(lv3,JLayeredPane.DRAG_LAYER);
 
         //the magic of adding cards
@@ -164,12 +166,14 @@ public class GrambityCat extends JFrame implements ActionListener{
         }
         //this is where we can choose different levels
         if(source==lv1){
+            level = 1;
             cLayout.show(cards,"game");
             myTimer.start();
             game.requestFocus();
         }
 
         if(source==lv2){
+            level = 2;
             if(hLevel>=2){
                 cLayout.show(cards,"game");
                 myTimer.start();
@@ -180,7 +184,8 @@ public class GrambityCat extends JFrame implements ActionListener{
             game.requestFocus();
 
         }
-        if(source==lv2){
+        if(source==lv3){
+            level = 3;
             if(hLevel>=3){
                 cLayout.show(cards,"game");
                 myTimer.start();
@@ -268,6 +273,8 @@ class GamePanel extends JPanel implements KeyListener{
     private int gravity = 3; //gravity value
     private int jCounter; //player can only hold jump for so long, jCounter keeps track of that
 
+    private ArrayList<Door> doors = new ArrayList<>();
+
     //booleans
     private boolean canJump; //makes sure the player can jump, ensures there is no double jumping
     //constructor
@@ -311,28 +318,39 @@ class GamePanel extends JPanel implements KeyListener{
         uCatsL[1] = upsideDownC2;
         uCatsL[2] = upsideDownC3;
 
-        //map things
-        /*
-        Image[] GTiles = new Image[3];
-        GTiles[0] = new ImageIcon(getClass().getResource("GTile1.png")).getImage();
-        GTiles[1] = new ImageIcon(getClass().getResource("GTile2.png")).getImage();
-        GTiles[2] = new ImageIcon(getClass().getResource("GTile3.png")).getImage();
-        */
-
-        ArrayList<String[]> map1 = new ArrayList<String[]>();
 
       //player tings
         opx = 70;
         opy = 490;
         player = new Cat(opx,opy, nCatsR, nCatsL,uCatsR,uCatsL);
 
-        //saw tings
-        Image[] sawPics = new Image[2];
-        Image saw1 = new ImageIcon(getClass().getResource("Saw1.0.png")).getImage();
-        sawPics[0] = saw1;
-        Image saw2 = new ImageIcon(getClass().getResource("Saw2.0.png")).getImage();
-        sawPics[1] = saw2;
+        MakeMap(saws, platforms,BPlatforms,lasers,PUps,LevelChoice(level),doors);
 
+        //frame stuffs
+        setSize(1330,630);
+        addKeyListener(this);
+        mainFrame = m;    //the main frame
+    }
+
+    //starts the game
+    public void addNotify(){
+        super.addNotify();
+        setFocusable(true);
+        requestFocus();
+        mainFrame.start();
+    }
+    public String LevelChoice(int level){
+        if (level == 1){
+            return "Map1.txt";
+        }
+        else if (level == 2){
+            return "Map2.txt";
+        }
+        else{
+            return "Map3.txt";
+        }
+    }
+    public void MakeMap(ArrayList<Saw> saws, ArrayList<Platform> platforms, ArrayList<BreakingPlat> BPlatforms, ArrayList<Laser> lasers, ArrayList<PowerUp> PUps, String map, ArrayList<Door> doory){
         //breaking plat tings
         ArrayList<Image[]> BPlats = new ArrayList<>();
         Image[] bImages1 = new Image[3];
@@ -352,19 +370,26 @@ class GamePanel extends JPanel implements KeyListener{
         bImages3[1] = new ImageIcon(getClass().getResource("Breaking3.png")).getImage();
         bImages3[2] = new ImageIcon(getClass().getResource("BreakingLast2.png")).getImage();
         BPlats.add(bImages3);
+        //saw tings
+        Image[] sawPics = new Image[2];
+        Image saw1 = new ImageIcon(getClass().getResource("Saw1.0.png")).getImage();
+        sawPics[0] = saw1;
+        Image saw2 = new ImageIcon(getClass().getResource("Saw2.0.png")).getImage();
+        sawPics[1] = saw2;
 
-
-        //mapcode
-
+        Image DoorImage = new ImageIcon(getClass().getResource("Door.png")).getImage();
         try{
-            //Scanner inFile = new Scanner (new File("Map2.txt"));
-            Scanner inFile = new Scanner ( new File(getClass().getResource("Map2.txt").getFile()));
+            Scanner inFile = new Scanner ( new File(getClass().getResource(map).getFile()));
             while(inFile.hasNextLine()){
                 String n = inFile.nextLine();
                 String[] stuff = n.split(",");
                 if (stuff.length == 3){
                     if (stuff[2].contains("GTile"))
                         platforms.add(new Platform(Integer.parseInt(stuff[0])*35,Integer.parseInt(stuff[1])*35,35,35,new ImageIcon(getClass().getResource(stuff[2])).getImage(),player));
+                    else if (stuff[2].contains("Door")){
+                        System.out.println("hi");
+                        doory.add( new Door(Integer.parseInt(stuff[0])*35,Integer.parseInt(stuff[1])*35,DoorImage, player));
+                    }
                     else{
                         BPlatforms.add(new BreakingPlat(Integer.parseInt(stuff[0])*35,Integer.parseInt(stuff[1])*35,35,35,BPlats.get(Integer.parseInt(stuff[2])),player));
                     }
@@ -383,19 +408,6 @@ class GamePanel extends JPanel implements KeyListener{
         catch(IOException ex){
             System.out.println("Dude, did you misplace Map1.txt?");
         }
-
-        //frame stuffs
-        setSize(1330,630);
-        addKeyListener(this);
-        mainFrame = m;    //the main frame
-    }
-
-    //starts the game
-    public void addNotify(){
-        super.addNotify();
-        setFocusable(true);
-        requestFocus();
-        mainFrame.start();
     }
 
     //moves the player
@@ -656,6 +668,9 @@ class GamePanel extends JPanel implements KeyListener{
         }
         for(BreakingPlat bplat : BPlatforms) {
             bplat.draw(g, this); //draw the breakingPlat
+        }
+        for(Door door : doors) {
+            door.draw(g, this); //draw the breakingPlat
         }
         player.draw(g,this); //draw the player
     }
