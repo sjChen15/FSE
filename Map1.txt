@@ -93,6 +93,7 @@
 36,16,GTile2.png
 37,16,GTile2.png
 38,16,GTile3.png
+34,14,Door
 18,1
 1,7
 22,9,22,36,right
